@@ -134,15 +134,15 @@ const signin = async (req, res) => {
           });
         } else {
           if (!result.rowCount == 0) {
-            await con.query(
-              `
-                update autenticacion.aut_usuario 
-                set aut_us_ultimo_ingreso = current_timestamp,
-                aut_us_ingreso = false, 
-                aut_us_navegador = '${req.body.navegador}'
-                where aut_id_usuario = ${result.rows[0].aut_id_usuario}
-                `
-            );
+            // await con.query(
+            //   `
+            //     update autenticacion.aut_usuario 
+            //     set aut_us_ultimo_ingreso = current_timestamp,
+            //     aut_us_ingreso = false, 
+            //     aut_us_navegador = '${req.body.navegador}'
+            //     where aut_id_usuario = ${result.rows[0].aut_id_usuario}
+            //     `
+            // );
 
             if (!bcrypt.compare(req.body.login.password, result.rows[0].aut_us_password)) {
               return res.status(400).json({
