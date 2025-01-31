@@ -196,7 +196,7 @@ const getListado = async (req, res) => {
   var query = `select row_number() over(order by a.cod_cuest) nro, a.*, to_char(ca.fecha_asignacion, 'dd-mm-yyyy')fecha_asig, 
             concat(COALESCE(vu.aut_us_nombres,null),' ',COALESCE (vu.aut_us_paterno,null),' ',COALESCE (vu.aut_us_materno, null)) nombre, ca.estado_id, ce.estado
             ca.estado_id, ce.estado
-            from(select distinct * from autenticacion.vw_calidad_filtro vcf where `;
+            from(select distinct * from autenticacion.vw_calidad_filtro vcf where `; 
   // console.log(depto, mpio, ag, ae, emp);
 
   query += depto != "null" ? ` cod_depto = '${depto}' ` : "";
