@@ -194,10 +194,10 @@ const getListado = async (req, res) => {
   var ae = req.params.ae;
 
   var query = `select row_number() over(order by a.cod_cuest) nro, a.*, to_char(ca.fecha_asignacion, 'dd-mm-yyyy')fecha_asig, 
-            concat(COALESCE(vu.aut_us_nombres,null),' ',COALESCE (vu.aut_us_paterno,null),' ',COALESCE (vu.aut_us_materno, null)) nombre, ca.estado_id, ce.estado
+            concat(COALESCE(vu.aut_us_nombres,null),' ',COALESCE (vu.aut_us_paterno,null),' ',COALESCE (vu.aut_us_materno, null)) nombre, ca.estado_id, ce.estado,
             ca.estado_id, ce.estado
             from(select distinct * from autenticacion.vw_calidad_filtro vcf where `; 
-  // console.log(depto, mpio, ag, ae, emp);
+  console.log(depto, mpio, ag, ae);
 
   query += depto != "null" ? ` cod_depto = '${depto}' ` : "";
   query += mpio != "null" ? ` and cod_municipio = '${mpio}' ` : "";
@@ -206,8 +206,8 @@ const getListado = async (req, res) => {
   query += `)a left join calidad.cal_asignacion ca on ca.rep_id = a.rep_id
           left join autenticacion.vw_usuarios vu on vu.aut_id_usuario = ca.usu_asig_id 
           left join calidad.cal_estado ce on ce.id_estado = ca.estado_id`;
-  // console.log(query, '<== query')
-  con_mon.query(query, (  err, result) => {
+          con_mon.query(query, (  err, result) => {
+    console.log(query, '<== query')
     if (err) {
       return res.json({ 
         title: "Error", 
