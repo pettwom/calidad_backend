@@ -42,10 +42,7 @@ const getMpio = async (req, res) => {
         from autenticacion.vw_calidad_filtro vcf 
         where cod_depto = '${id_depto}'`,
     (err, result) => {
-      // console.log(`
-      //   select distinct vcf.depto, vcf.cod_depto, vcf.mpio, vcf.cod_municipio 
-      //   from autenticacion.vw_calidad_filtro vcf 
-      //   where cod_depto = '${id_depto}'`);
+
 
       if (err) {
         return res.json({
@@ -188,6 +185,109 @@ const getEmp = async (req, res) => {
 };
 
 const getListado = async (req, res) => {
+  const _user = await userData(req, res);
+  //if (_user) {
+   // await con.query(
+    //  `select concat(COALESCE(vu.aut_us_nombres, ''),' ',COALESCE(vu.aut_us_paterno, ''),' ',COALESCE(vu.aut_us_materno, ''))nombres, vu.aut_id_usuario id_usuario
+    //      from autenticacion.vw_usuarios vu 
+     //  `,
+     // (err, result) => {
+     //   if (err) {
+     //     return res.json({
+     //       title: "Error",
+      //      icon: "error",
+      //      text: err.message
+      //    });
+      //  }
+      //  if (result.rowCount > 0) {
+      //    return res.status(200).json({
+      //      title: "Correcto",
+      //      icon: "success",
+      //      text: "Se listaron correctamente los usuarios",
+      //      data: result.rows
+      //    });
+      //  } else {
+      //    return res.status(200).json({
+      //      title: "Información",
+      //      icon: "info",
+      //      text: "No se encontraron Datos",
+      //      data: ""
+      //    });
+      //  }
+    //  }
+    //);
+  //} else {
+   // return res.status(401).json({
+    //  message: "jwt expired"
+    //});
+  //}
+  var depto = req.params.depto;
+  var mpio = req.params.mpio;
+  var ag = req.params.ag;
+  var ae = req.params.ae;
+  var query = `select row_number() over(order by a.cod_cuest) nro, a.*, to_char(ca.fecha_asignacion, 'dd-mm-yyyy')fecha_asig, 
+            concat(COALESCE(vu.aut_us_nombres,null),' ',COALESCE (vu.aut_us_paterno,null),' ',COALESCE (vu.aut_us_materno, null)) nombre, ca.estado_id, ce.estado,
+            ca.estado_id, ce.estado
+            from autenticacion.vw_calidad_filtro a 
+          left join calidad.cal_asignacion ca on ca.rep_id = a.rep_id
+          left join autenticacion.vw_usuarios vu on vu.aut_id_usuario = ca.usu_asig_id 
+          left join calidad.cal_estado ce on ce.id_estado = ca.estado_id  where a.cod_depto::int = ca.cod_depto::int and ca.usu_asig_id = ${_user.id_usuario}`;
+          con_mon.query(query, (  err, result) => {
+    console.log(query, '<== query')
+    if (err) {
+      return res.json({ 
+        title: "Error", 
+        icon: "error",
+        text: err.message 
+      });
+    }
+    if (result.rowCount > 0) {
+      return res.status(200).json({ 
+        title: "Correcto",
+        icon: "success",
+        text: "Se listo correctamente",
+        data: result.rows
+      });
+    }
+  });
+};
+
+// para listado de cuestionario
+const getListadoCuestionario = async (req, res) => {
+  var idrep = req.params.id_rep;
+  const _user = await userData(req, res);
+  var user_id = 661;
+
+  var query = `select row_number() over(order by a.cod_cuest) nro, a.*, to_char(ca.fecha_asignacion, 'dd-mm-yyyy')fecha_asig, 
+            concat(COALESCE(vu.aut_us_nombres,null),' ',COALESCE (vu.aut_us_paterno,null),' ',COALESCE (vu.aut_us_materno, null)) nombre, ca.estado_id, ce.estado,
+            ca.estado_id, ce.estado
+            from(select distinct * from autenticacion.vw_calidad_filtro vcf where `; 
+  
+  query += `)a left join calidad.cal_asignacion ca on ca.rep_id = a.rep_id
+          left join autenticacion.vw_usuarios vu on vu.aut_id_usuario = ca.usu_asig_id 
+          left join calidad.cal_estado ce on ce.id_estado = ca.estado_id`;
+          con_mon.query(query, (  err, result) => {
+    console.log(query, '<== query')
+    if (err) {
+      return res.json({ 
+        title: "Error", 
+        icon: "error",
+        text: err.message 
+      });
+    }
+    if (result.rowCount > 0) {
+      return res.status(200).json({ 
+        title: "Correcto",
+        icon: "success",
+        text: "Se listo correctamente",
+        data: result.rows
+      });
+    }
+  });
+};
+// Listado de preguntas
+// para listado de cuestionario
+const getListadoPregunta = async (req, res) => {
   var depto = req.params.depto;
   var mpio = req.params.mpio;
   var ag = req.params.ag;
@@ -408,5 +508,7 @@ module.exports = {
   migrarDatos,
   getValidar,
   saveValidar,
-  saveAsignar
+  saveAsignar,
+  getListadoCuestionario,
+  getListadoPregunta
 };
