@@ -15,6 +15,7 @@ const initWebSocket = io => {
     // Enviar actualizaciones automáticas cada 10 segundos
     const intervalId = setInterval(() => {
       const timestamp = new Date().toISOString();
+     
       socket.emit("update", { message: "Actualización automática del servidor", timestamp });
     }, 10000); // 10 segundos
 
