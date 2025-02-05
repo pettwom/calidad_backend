@@ -5,3 +5,4 @@ package-lock.json
 swagger-output.json
 downloads/
 public/MapasCartografia/
+logs/logs.log
