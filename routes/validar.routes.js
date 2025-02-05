@@ -11,7 +11,9 @@ const {
     migrarDatos,
     getValidar,
     saveValidar,
-    saveAsignar
+    saveAsignar, 
+    getListadoCuest,
+    getAlertas
 } = require('../controllers/system/validar.controller');
 
 const router = Router();
@@ -26,6 +28,8 @@ router.get('/migrarDatos', migrarDatos);
 router.get('/getValidar/:ids', getValidar);
 router.post('/saveValidar', saveValidar);
 router.post('/saveAsignar', saveAsignar);
+router.get('/getListadoCuest', getListadoCuest);
+router.get('/getAlertas/:id', getAlertas);
 
 
 module.exports = router;

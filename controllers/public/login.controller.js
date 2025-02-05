@@ -58,6 +58,7 @@ const signin = async (req, res) => {
               FROM autenticacion.vw_usuarios vwu
               where vwu.aut_us_usuario ilike  substring('${usernameC}', 1, (position('@' in '${usernameC}')-1)) `,
               async (error, result) => {
+                
                 if (error) {
                   console.log(error);
                 }
@@ -126,6 +127,7 @@ const signin = async (req, res) => {
         from autenticacion.vw_usuarios vau
         where lower(vau.aut_us_usuario) ilike lower('${usuario}')`,
       async (err, result) => {
+        
         if (err) {
           return res.status(400).json({
             statusCode: 400,
