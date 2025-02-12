@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 /* eslint-disable no-undef */
 
 const jwt = require('jsonwebtoken');
@@ -15,7 +16,7 @@ let verificaToken = async(req, res, next) => {
         await jwt.verify(token, SEED);
         next();     
      } catch (error) {
-        console.log(error,1321);
+        // console.log(error,1321);
         return res.status(401).json({
             ok:false,
             message: '¡Token no válido!'

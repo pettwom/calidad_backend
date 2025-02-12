@@ -17,7 +17,7 @@ const requestLogger = async(req, res, next) => {
             timestamp: new Date().toISOString(),
             user: id_usuario // Captura información del usuario si está disponible
         };
-        console.log(logData);
+        // console.log(logData);
         
         // Registra la información en los logs
         logger.info(`Request received`, logData);

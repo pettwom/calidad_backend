@@ -30,7 +30,7 @@ const initWebSocket = io => {
 
     // Manejar la desconexión del cliente
     socket.on("disconnect", () => {
-      console.log(`Cliente desconectado: ${socket.id}`);
+      // console.log(`Cliente desconectado: ${socket.id}`);
       clearInterval(intervalId); // Detener el envío de actualizaciones
     });
   });
@@ -122,7 +122,7 @@ const marcarVisto = async (req, res) => {
 const almacenarNoti = async (req, res, next) => {
   let _user = await userData(req, res);
   var fecha =  await fechas(req.body.fechaFin)
-  console.log(typeof fecha)
+  // console.log(typeof fecha)
   await con.query(
     `INSERT INTO "autenticacion"."notificacion" 
                   ("titulo_noti", "descripcion_larga", "id_estado", "fecre", "usucre", "fecha_fin", "id_user_asig", "tiempo_limite") 

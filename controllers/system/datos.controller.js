@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 const { con } = require("../../config/db");
 
 const consultaDatos = async (req, res) => {
@@ -16,7 +17,7 @@ const consultaDatos = async (req, res) => {
     // Devuelve los resultados en formato JSON
     res.json(result.rows);
   } catch (error) {
-    console.error('Error al ejecutar la consulta:', error);
+    // console.error('Error al ejecutar la consulta:', error);
     res.status(500).json({ error: 'Error al obtener los datos' });
   }
 };

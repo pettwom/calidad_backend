@@ -6,7 +6,7 @@ const getUser = async (req, res) => {
   if (_user) {
     await con.query(
       `select concat(COALESCE(vu.aut_us_nombres, ''),' ',COALESCE(vu.aut_us_paterno, ''),' ',COALESCE(vu.aut_us_materno, ''))nombres, vu.aut_id_usuario id_usuario
-          from autenticacion.vw_usuarios vu 
+          from monitoreo.vw_usuarios vu 
           where vu.aut_us_rol in(SELECT id_rol 
           FROM autenticacion.rol r 
           where r.sistema in('CALIDAD','ALL'))
@@ -62,7 +62,7 @@ const userCuestionario = async (req, res) => {
         left join calidad.cal_estado ce on ce.id_estado = a.estado_id
         WHERE a.rn = 1 AND a.usu_asig_id = '${usu_id}' `);
 
-      console.log(consulta.rows);
+      // console.log(consulta.rows);
 
       return res.status(200).json({
         title: 'Correcto',
@@ -105,7 +105,7 @@ const reasignar = async (req, res) => {
             FROM calidad.cal_asignacion
             WHERE rep_id = '${cuest}' `);
 
-          console.log(consulta.rows);
+          // console.log(consulta.rows);
           if (consulta.rows.length > 0) {
             const fechaAsig = consulta.rows[0].fecha_asignacion
             let day2 = fechaAsig.getDate()

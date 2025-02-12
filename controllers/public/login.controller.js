@@ -124,9 +124,12 @@ const signin = async (req, res) => {
   } else {
     await con.query(
       `select *
-        from autenticacion.vw_usuarios vau
+        from monitoreo.vw_usuarios vau
         where lower(vau.aut_us_usuario) ilike lower('${usuario}')`,
       async (err, result) => {
+        console.log(`select *
+        from monitoreo.vw_usuarios vau
+        where lower(vau.aut_us_usuario) ilike lower('${usuario}')`);
         
         if (err) {
           return res.status(400).json({
@@ -215,22 +218,22 @@ function contieneNumero(str) {
 }
 
 async function generarMenu(usuario) {
-  console.log(`
-    select distinct
-    m.id_menu,
-    m.descripcion_menu descripcion,
-    m.icono, 
-    m.ruta,
-    m.orden, 
-    au.aut_id_usuario,
-    (select ruta from autenticacion.menu sm where sm.id_rol @> array[au.aut_us_rol] LIMIT 1) ruta_defecto,
-    (select STRING_AGG(descripcion_menu||','||ruta,'*|*') from autenticacion.menu sm where sm.id_menu_padre = m.id_menu and m.estado ='ACTIVO' and visible= 't' order by m.orden_sub ) hijos
-    from autenticacion.vw_usuarios au 
-    join autenticacion.rol r on au.aut_us_rol = r.id_rol
-    join autenticacion.menu m ON m.id_rol @> array[ r.id_rol] AND m.id_menu_padre IS NULL
-    WHERE au.aut_id_usuario = $1 and m.visible = true and m.estado = 'ACTIVO'  and m.sistema IN('CALIDAD','ALL')
-    order by m.orden  
-  `);
+  // console.log(`
+  //   select distinct
+  //   m.id_menu,
+  //   m.descripcion_menu descripcion,
+  //   m.icono, 
+  //   m.ruta,
+  //   m.orden, 
+  //   au.aut_id_usuario,
+  //   (select ruta from autenticacion.menu sm where sm.id_rol @> array[au.aut_us_rol] LIMIT 1) ruta_defecto,
+  //   (select STRING_AGG(descripcion_menu||','||ruta,'*|*') from autenticacion.menu sm where sm.id_menu_padre = m.id_menu and m.estado ='ACTIVO' and visible= 't' order by m.orden_sub ) hijos
+  //   from autenticacion.vw_usuarios au 
+  //   join autenticacion.rol r on au.aut_us_rol = r.id_rol
+  //   join autenticacion.menu m ON m.id_rol @> array[ r.id_rol] AND m.id_menu_padre IS NULL
+  //   WHERE au.aut_id_usuario = $1 and m.visible = true and m.estado = 'ACTIVO'  and m.sistema IN('CALIDAD','ALL')
+  //   order by m.orden  
+  // `);
   const resultado = await con.query(
     `
     select distinct
@@ -242,7 +245,7 @@ async function generarMenu(usuario) {
     au.aut_id_usuario,
     (select ruta from autenticacion.menu sm where sm.id_rol @> array[au.aut_us_rol] LIMIT 1) ruta_defecto,
     (select STRING_AGG(descripcion_menu||','||ruta,'*|*') from autenticacion.menu sm where sm.id_menu_padre = m.id_menu and m.estado ='ACTIVO' and visible= 't' order by m.orden_sub ) hijos
-    from autenticacion.vw_usuarios au 
+    from monitoreo.vw_usuarios au 
     join autenticacion.rol r on au.aut_us_rol = r.id_rol
     join autenticacion.menu m ON m.id_rol @> array[ r.id_rol] AND m.id_menu_padre IS NULL
     WHERE au.aut_id_usuario = $1 and m.visible = true and m.estado = 'ACTIVO'  and m.sistema IN('CALIDAD','ALL')
