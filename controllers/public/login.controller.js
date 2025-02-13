@@ -55,7 +55,7 @@ const signin = async (req, res) => {
             }
             await con.query(
               `SELECT *
-              FROM autenticacion.vw_usuarios vwu
+              FROM monitoreo.vw_usuarios vwu
               where vwu.aut_us_usuario ilike  substring('${usernameC}', 1, (position('@' in '${usernameC}')-1)) `,
               async (error, result) => {
                 
@@ -266,12 +266,12 @@ const resetear = async (req, res) => {
   var ci = req.body.carnet;
   var pass = req.body.pass;
   // var id;
-  var ci_verificado = await con.query(`select * from autenticacion.vw_usuarios where aut_us_ci = '${ci}'`);
+  var ci_verificado = await con.query(`select * from monitoreo.vw_usuarios where aut_us_ci = '${ci}'`);
 
   if (ci_verificado.rowCount > 0) {
     // id = ci_verificado.rows.id_usuario;
     bcrypt.hash(pass, 10, (err, result) => {
-      con.query(`update autenticacion.vw_usuarios set aut_us_password = '${result}' where aut_us_ci = '${ci}'`, () => {
+      con.query(`update monitore.vw_usuarios set aut_us_password = '${result}' where aut_us_ci = '${ci}'`, () => {
         return res.status(200).json({
           title: "Correcto",
           icon: "success",

@@ -156,7 +156,7 @@ const fechas = async (req, res) => {
 };
 
 const getUser = async (req, res) => {
-  var resultado = await con.query(`select distinct vu.aut_id_usuario id_usuario, vu.aut_us_nombres ||' '||vu.aut_us_paterno ||' ' ||vu.aut_us_materno nombres from autenticacion.vw_usuarios vu order by 1
+  var resultado = await con.query(`select distinct vu.aut_id_usuario id_usuario, vu.aut_us_nombres ||' '||vu.aut_us_paterno ||' ' ||vu.aut_us_materno nombres from monitoreo.vw_usuarios vu order by 1
     `);
   return res.json({
     title: "Correcto",

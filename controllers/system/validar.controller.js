@@ -281,7 +281,7 @@ const getListadoCuestionario = async (req, res) => {
             from(select distinct * from autenticacion.vw_calidad_filtro vcf where `; 
   
   query += `)a left join calidad.cal_asignacion ca on ca.rep_id = a.rep_id
-          left join autenticacion.vw_usuarios vu on vu.aut_id_usuario = ca.usu_asig_id 
+          left join monitoreo.vw_usuarios vu on vu.aut_id_usuario = ca.usu_asig_id 
           left join calidad.cal_estado ce on ce.id_estado = ca.estado_id`;
           con_mon.query(query, (  err, result) => {
     console.log(query, '<== query')
@@ -324,7 +324,7 @@ const getListadoPregunta = async (req, res) => {
             SELECT *, ROW_NUMBER() OVER (PARTITION BY rep_id ORDER BY id DESC) AS rn
             FROM calidad.cal_asignacion) a
             WHERE a.rn = 1) ca on ca.rep_id = a.rep_id
-          left join autenticacion.vw_usuarios vu on vu.aut_id_usuario = ca.usu_asig_id 
+          left join monitoreo.vw_usuarios vu on vu.aut_id_usuario = ca.usu_asig_id 
           left join calidad.cal_estado ce on ce.id_estado = ca.estado_id`;
   con_mon.query(query, (err, result) => {
     // console.log(query, "<== query");
@@ -521,7 +521,7 @@ const getListadoCuest = async (req, res) => {
               vu.aut_us_materno)nombres , vu.aut_us_ci,ae.descripcion estado , ae.id_estado estado_id, 
               ar.rep_folio_upa cuestionario, ac.cue_titulo 
               from calidad.cal_asignacion ca 
-              join autenticacion.vw_usuarios vu on ca.usu_asig_id = vu.aut_id_usuario
+              join monitoreo.vw_usuarios vu on ca.usu_asig_id = vu.aut_id_usuario
               join cuestionarios.apk_replicas ar on ar.rep_id = ca.rep_id 
               join marco_area.vw_ca_aes_6mpios ae2 on ae2.ae_unico = ar.rep_ae 
               join cuestionarios.apk_cuestionarios ac on ac.cue_id = ar.fk_cue_id 
@@ -571,7 +571,7 @@ const getAlertas = async(req, res) => {
               where cv.pre_numero_pregunta not in( 16,18,29) and fk_sec_id < 227 order by 1`)
   var datosGenerales = await con.query(`select row_number() over(order by ca.depto)nro,ca.depto, ca.mpio,ae2.ag_unico, ae2.ae_unico,  ca.rep_id, concat(vu.aut_us_nombres,' ',vu.aut_us_paterno,' ',vu.aut_us_materno)nombres , vu.aut_us_ci,ae.descripcion estado , ae.id_estado estado_id, ar.rep_folio_upa cuestionario, ac.cue_titulo 
                                       from calidad.cal_asignacion ca 
-                                      join autenticacion.vw_usuarios vu on ca.usu_asig_id = vu.aut_id_usuario
+                                      join monitoreo.vw_usuarios vu on ca.usu_asig_id = vu.aut_id_usuario
                                       join cuestionarios.apk_replicas ar on ar.rep_id = ca.rep_id 
                                       join marco_area.vw_ca_aes_6mpios ae2 on ae2.ae_unico = ar.rep_ae 
                                       join cuestionarios.apk_cuestionarios ac on ac.cue_id = ar.fk_cue_id 
@@ -595,7 +595,7 @@ const getAlertas = async(req, res) => {
       array.push(queryRes.rows[0].res) 
     } 
     getPreg.rows.forEach((e,i)=> {
-      e.depto = datosGenerales.rows[0].depto,
+      e.depto = datosGenerales.rows[0].depto, 
       e.mpio = datosGenerales.rows[0].mpio, 
       e.ag_unico = datosGenerales.rows[0].ag_unico,
       e.ae_unico = datosGenerales.rows[0].ae_unico, 
