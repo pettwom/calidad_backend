@@ -568,7 +568,7 @@ const getAlertas = async(req, res) => {
   var getPreg = await con.query(`select distinct cv.pre_numero_pregunta , ap.pre_pregunta
               from calidad.cal_validaciones cv 
               join cuestionarios.apk_preguntas ap on ap.pre_numero_pregunta::text  = cv.pre_numero_pregunta::text
-              where cv.pre_numero_pregunta not in( 16,18,29) order by 1`)
+              where cv.pre_numero_pregunta not in( 16,18,29) and fk_sec_id < 227 order by 1`)
   var datosGenerales = await con.query(`select row_number() over(order by ca.depto)nro,ca.depto, ca.mpio,ae2.ag_unico, ae2.ae_unico,  ca.rep_id, concat(vu.aut_us_nombres,' ',vu.aut_us_paterno,' ',vu.aut_us_materno)nombres , vu.aut_us_ci,ae.descripcion estado , ae.id_estado estado_id, ar.rep_folio_upa cuestionario, ac.cue_titulo 
                                       from calidad.cal_asignacion ca 
                                       join autenticacion.vw_usuarios vu on ca.usu_asig_id = vu.aut_id_usuario
@@ -584,7 +584,7 @@ const getAlertas = async(req, res) => {
                                             group by rep_id) a 
                                             )
                                       and ar.rep_id =${rep_id}`);
-                                    // console.log(getPreg.rows); 
+                                    console.log(getPreg.rows); 
                                     // console.log(getUbicacion.rows);
                                
   for(const a of getPreg.rows){
