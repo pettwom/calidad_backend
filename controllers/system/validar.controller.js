@@ -1,3 +1,5 @@
+/* eslint-disable curly */
+/* eslint-disable no-undef */
 /* eslint-disable dot-notation */
 /* eslint-disable no-unused-vars */
 const { con, con_mon } = require("../../config/db");
@@ -616,6 +618,7 @@ const getListadoCuest = async (req, res) => {
   });
 };
 const getAlertas = async (req, res) => {
+  const _user = await userData(req, res);
   var datos = [];
   var rep_id = req.params.id;
   var getPreg = await con.query(`select distinct cv.pre_numero_pregunta , ap.pre_pregunta
@@ -637,38 +640,74 @@ const getAlertas = async (req, res) => {
                                             group by rep_id) a 
                                             )
                                       and ar.rep_id =${rep_id}`);
-  console.log(getPreg.rows);
-  // console.log(getUbicacion.rows);
-
+  await con.query(`select * from calidad.fn_calidad_bucle(${rep_id}, 0 ,'${datosGenerales.rows[0].depto}', '${datosGenerales.rows[0].mpio}',${_user.id_usuario})`)
   for (const a of getPreg.rows) {
-    console.log(a.pre_numero_pregunta, rep_id, datosGenerales.rows[0].depto, datosGenerales.rows[0].mpio);
-
-    var queryRes = await con.query(`select * from calidad.fn_validacion_calidad(${a.pre_numero_pregunta},${rep_id}, '${datosGenerales.rows[0].depto}', '${datosGenerales.rows[0].mpio}') res`)
-    console.log(queryRes.rows);
-    array.push(queryRes.rows[0].res)
+    // console.log(a.pre_numero_pregunta, rep_id, datosGenerales.rows[0].depto, datosGenerales.rows[0].mpio);
+  await con.query(`select * from calidad.fn_validacion_calidad(${a.pre_numero_pregunta},${rep_id}, '${datosGenerales.rows[0].depto}', '${datosGenerales.rows[0].mpio}',${_user.id_usuario}) res`)
+    // console.log(queryRes.rows);
+    // array.push(queryRes.rows[0].res)
   }
-  getPreg.rows.forEach((e, i) => {
-    e.depto = datosGenerales.rows[0].depto,
-      e.mpio = datosGenerales.rows[0].mpio,
-      e.ag_unico = datosGenerales.rows[0].ag_unico,
-      e.ae_unico = datosGenerales.rows[0].ae_unico,
-      e.rep_id = datosGenerales.rows[0].rep_id,
-      e.nombres = datosGenerales.rows[0].nombres,
-      e.cuestionario = datosGenerales.rows[0].cuestionario,   
-      e.cue_titulo = datosGenerales.rows[0].cue_titulo, 
-      e.respuesta = array[i]  
-    }); 
+  var queryResultado = `select * from(
+                        select distinct ao.rep_id, ap.pre_id, ap.pre_numero_pregunta ,ap.pre_pregunta, upper(ao.obs_observacion)obs_observacion, ao.estado_id, ae.descripcion
+                        from cuestionarios.apk_observaciones ao
+                        join cuestionarios.apk_preguntas ap on ap.pre_numero_pregunta = ao.pre_num_pregunta
+                        join cuestionarios.apk_estados ae on ae.id_estado = ao.estado_id 
+                        where ao.rep_id = ${rep_id} and fk_sec_id < 227  and (ap.fk_pre_id = (select pre_id
+                        from cuestionarios.apk_preguntas ap 
+                        where ap.pre_numero_pregunta = '16.1'))
+                        union all
+                        select distinct ao.rep_id, ap.pre_id, ap.pre_numero_pregunta ,ap.pre_pregunta, upper(ao.obs_observacion)obs_observacion , ao.estado_id, ae.descripcion
+                        from cuestionarios.apk_observaciones ao
+                        join cuestionarios.apk_preguntas ap on ap.pre_numero_pregunta = ao.pre_num_pregunta
+                        join cuestionarios.apk_estados ae on ae.id_estado = ao.estado_id 
+                        where ao.rep_id = ${rep_id} and fk_sec_id < 227 and ao.pre_num_pregunta not in('16.1','16.2','16.3','18','29')
+                        union all 
+                        select distinct ao.rep_id, ap.pre_id, ap.pre_numero_pregunta ,ap.pre_pregunta, upper(ao.obs_observacion)obs_observacion , ao.estado_id, ae.descripcion
+                        from cuestionarios.apk_observaciones ao
+                        join cuestionarios.apk_preguntas ap on ap.pre_numero_pregunta = ao.pre_num_pregunta
+                        join cuestionarios.apk_estados ae on ae.id_estado = ao.estado_id 
+                        where ao.rep_id = ${rep_id} and fk_sec_id < 227  and ap.pre_numero_pregunta  = '16.1'
+                        )b 
+                        order by 3`; 
+  await con.query(queryResultado, (err, result) => {
+    if (err) {
+      return res.status(404).json({
+        title: 'Error',
+        icon: 'error',
+        text: err.message
+      });
+    }
+    if(result.rowCount > 0) {
+      return res.status(200).json({
+        title: 'Correcto',
+        icon:'success',
+        text: 'Se obtuvo todas las alertas',
+        data: result.rows
+      })
+    }
+  })
+  // getPreg.rows.forEach((e, i) => {
+  //   e.depto = datosGenerales.rows[0].depto,
+  //     e.mpio = datosGenerales.rows[0].mpio,
+  //     e.ag_unico = datosGenerales.rows[0].ag_unico,
+  //     e.ae_unico = datosGenerales.rows[0].ae_unico,
+  //     e.rep_id = datosGenerales.rows[0].rep_id,
+  //     e.nombres = datosGenerales.rows[0].nombres,
+  //     e.cuestionario = datosGenerales.rows[0].cuestionario,   
+  //     e.cue_titulo = datosGenerales.rows[0].cue_titulo, 
+  //     e.respuesta = array[i]  
+  //   }); 
     // console.log(getPreg,'<====jgh');
     
      
   
     
-      return res.status(200).json({ 
-        title: 'Correcto', 
-        icon:'success',   
-        text: 'Se obtuvo todas las alertas',   
-        data: getPreg
-      }) 
+      // return res.status(200).json({ 
+      //   title: 'Correcto', 
+      //   icon:'success',   
+      //   text: 'Se obtuvo todas las alertas',   
+      //   data: getPreg
+      // }) 
 }
 
 module.exports = {
