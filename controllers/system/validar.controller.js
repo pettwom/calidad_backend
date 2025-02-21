@@ -648,7 +648,7 @@ const getAlertas = async (req, res) => {
     // array.push(queryRes.rows[0].res)
   }
   var queryResultado = `select * from(
-                        select distinct ao.rep_id, ap.pre_id, ap.pre_numero_pregunta ,ap.pre_pregunta, upper(ao.obs_observacion)obs_observacion, ao.estado_id, ae.descripcion
+                        select distinct ao.rep_id, ap.pre_id, ap.pre_numero_pregunta ,ap.pre_pregunta, upper(ao.obs_observacion)obs_observacion, ao.estado_id, ae.descripcion as estado
                         from cuestionarios.apk_observaciones ao
                         join cuestionarios.apk_preguntas ap on ap.pre_numero_pregunta = ao.pre_num_pregunta
                         join cuestionarios.apk_estados ae on ae.id_estado = ao.estado_id 
@@ -656,13 +656,13 @@ const getAlertas = async (req, res) => {
                         from cuestionarios.apk_preguntas ap 
                         where ap.pre_numero_pregunta = '16.1'))
                         union all
-                        select distinct ao.rep_id, ap.pre_id, ap.pre_numero_pregunta ,ap.pre_pregunta, upper(ao.obs_observacion)obs_observacion , ao.estado_id, ae.descripcion
+                        select distinct ao.rep_id, ap.pre_id, ap.pre_numero_pregunta ,ap.pre_pregunta, upper(ao.obs_observacion)obs_observacion , ao.estado_id, ae.descripcion as estado
                         from cuestionarios.apk_observaciones ao
                         join cuestionarios.apk_preguntas ap on ap.pre_numero_pregunta = ao.pre_num_pregunta
                         join cuestionarios.apk_estados ae on ae.id_estado = ao.estado_id 
                         where ao.rep_id = ${rep_id} and fk_sec_id < 227 and ao.pre_num_pregunta not in('16.1','16.2','16.3','18','29')
                         union all 
-                        select distinct ao.rep_id, ap.pre_id, ap.pre_numero_pregunta ,ap.pre_pregunta, upper(ao.obs_observacion)obs_observacion , ao.estado_id, ae.descripcion
+                        select distinct ao.rep_id, ap.pre_id, ap.pre_numero_pregunta ,ap.pre_pregunta, upper(ao.obs_observacion)obs_observacion , ao.estado_id, ae.descripcion as estado
                         from cuestionarios.apk_observaciones ao
                         join cuestionarios.apk_preguntas ap on ap.pre_numero_pregunta = ao.pre_num_pregunta
                         join cuestionarios.apk_estados ae on ae.id_estado = ao.estado_id 
@@ -674,7 +674,7 @@ const getAlertas = async (req, res) => {
       return res.status(404).json({
         title: 'Error',
         icon: 'error',
-        text: err.message
+        text: err.message 
       });
     }
     if(result.rowCount > 0) {
@@ -683,6 +683,13 @@ const getAlertas = async (req, res) => {
         icon:'success',
         text: 'Se obtuvo todas las alertas',
         data: result.rows
+      })
+    }else{
+      return res.status(200).json({
+        title: 'Información ',
+        icon:'info',
+        text: 'No se encontraron observaciones',
+        data: ''
       })
     }
   })
