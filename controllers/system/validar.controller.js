@@ -201,6 +201,7 @@ const getEmp = async (req, res) => {
   query += com != "null" ? ` and cod_com = '${com}' ` : "";
   query += ag != "null" ? ` and ag_unico = '${ag}' ` : "";
   query += ae != "null" ? ` and ae_unico = '${ae}' ` : "";
+console.log(query, '<=== empadronador');
 
   con_mon.query(query, (err, result) => {
     if (err) {
@@ -266,23 +267,38 @@ const _user = await userData(req, res);
   //});
   //}
 
-  console.log(req.params.ag!='null');
-  console.log(req.params.emp);
-  
   var depto = req.params.depto!='null'?` vcf.cod_depto = '${req.params.depto}'`:'';
   var mpio = req.params.mpio!='null'?` and vcf.cod_municipio ='${req.params.mpio}'`:'';
   var com = req.params.com!='null'?` and vcf.cod_com ='${req.params.com}'`:'';
-  var ag = req.params.ag!='null'? ` and ag_unico = '${req.params.ag}'`:'';
-  var ae = req.params.ae!='null'? ` and ae_unico = '${req.params.ae}'`:'';
-  var emp = req.params.emp!='null'? ` and cod_empadronador = ${req.params.emp}`:'';
-  var query = `SELECT row_number()over(order by vcf.depto) nro, vcf.depto, vcf.mpio, vcf.comunidad, vcf.ag_unico, vcf.ae_unico, 
-              vcf.cod_cuest, vcf.empadronador, to_char(ca.fecha_asignacion, 'dd-mm-yyyy') fecha_asig, ce.estado, coalesce(ca.estado_id,0)estado_id,
-              case when estado_id is null then vu.aut_us_nombres ||' ' ||vu.aut_us_paterno ||' '||vu.aut_us_materno else '' end nombre, vcf.rep_id
-              FROM autenticacion.vw_calidad_filtro vcf 
-              left join calidad.cal_asignacion ca on ca.usu_asig_id = vcf.aut_id_usuario 
-              left join monitoreo.vw_usuarios vu on vu.aut_id_usuario = ca.usu_asig_id 
-              left join calidad.cal_estado ce on ce.id_estado = ca.estado_id   
-              where ${depto} ${mpio} ${com} ${ag} ${ae} ${emp}`;
+  var ag = req.params.ag!='null'? ` and vcf.ag_unico = '${req.params.ag}'`:'';
+  var ae = req.params.ae!='null'? ` and vcf.ae_unico = '${req.params.ae}'`:'';
+  var emp = req.params.emp!='null'? ` and vcf.cod_empadronador = ${req.params.emp}`:'';
+  console.log(depto ,mpio ,com ,ag ,ae ,emp,'<==== datos ')
+  var query = `select distinct row_number() over(order by vcf.cod_depto )nro, vcf.cod_depto , vcf.depto, vcf.cod_municipio, vcf.cod_municipio mpio, vcf.cod_com, vcf.comunidad, vcf.ag_unico,vcf.ae_unico, 
+vcf.cod_empadronador, vcf.empadronador, vcf.cod_cuest, vcf.rep_id, 
+(select concat(vu.aut_us_nombres,' ',vu.aut_us_paterno,' ',vu.aut_us_materno) nombre
+from calidad.cal_asignacion ca 
+join monitoreo.vw_usuarios vu on vu.aut_id_usuario = ca.usu_asig_id 
+where ca.rep_id = vcf.rep_id)nombre,
+(select ca.fecha_asignacion 
+from calidad.cal_asignacion ca 
+join monitoreo.vw_usuarios vu on vu.aut_id_usuario = ca.usu_asig_id 
+where ca.rep_id = vcf.rep_id)fecha_asig,
+(select ae.descripcion
+from calidad.cal_asignacion ca 
+join cuestionarios.apk_estados ae on ae.id_estado = ca.estado_id 
+where ca.rep_id = vcf.rep_id)descripcion
+from autenticacion.vw_calidad_filtro vcf 
+where ${depto} ${mpio} ${com} ${ag} ${ae} ${emp};`
+              
+  // var query = `SELECT row_number()over(order by vcf.depto) nro, vcf.depto, vcf.mpio, vcf.comunidad, vcf.ag_unico, vcf.ae_unico, 
+  //             vcf.cod_cuest, vcf.empadronador, to_char(ca.fecha_asignacion, 'dd-mm-yyyy') fecha_asig, ce.estado, coalesce(ca.estado_id,0)estado_id,
+  //             case when estado_id is null then vu.aut_us_nombres ||' ' ||vu.aut_us_paterno ||' '||vu.aut_us_materno else '' end nombre, vcf.rep_id
+  //             FROM autenticacion.vw_calidad_filtro vcf 
+  //             left join calidad.cal_asignacion ca on ca.usu_asig_id = vcf.aut_id_usuario 
+  //             left join monitoreo.vw_usuarios vu on vu.aut_id_usuario = ca.usu_asig_id 
+  //             left join calidad.cal_estado ce on ce.id_estado = ca.estado_id   
+  //             where ${depto} ${mpio} ${com} ${ag} ${ae} ${emp}`;
   // var query = `select row_number() over(order by a.cod_cuest) nro, a.*, to_char(ca.fecha_asignacion, 'dd-mm-yyyy')fecha_asig, 
   //           concat(COALESCE(vu.aut_us_nombres,null),' ',COALESCE (vu.aut_us_paterno,null),' ',COALESCE (vu.aut_us_materno, null)) nombre, ca.estado_id, ce.estado,
   //           ca.estado_id, ce.estado
@@ -306,6 +322,13 @@ const _user = await userData(req, res);
         icon: "success",
         text: "Se listo correctamente",
         data: result.rows
+      });
+    }else{
+      return res.status(200).json({
+        title: "Información",
+        icon: "info",
+        text: "No se encontraron Datos",
+        data: ''
       });
     }
   });
