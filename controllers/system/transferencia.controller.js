@@ -1,0 +1,108 @@
+const { con } = require("../../config/db");
+const { userData } = require("../../lib/auth");
+
+const listarCuestionarios = async (req, res) => {
+  var query = `select distinct row_number() over(order by ca.depto)nro,* 
+                    from calidad.cal_asignacion ca
+                    join autenticacion.vw_calidad_filtro vcf on vcf.rep_id = ca.rep_id
+                    where ca.rep_id in(
+                    select rep_id
+                    from cuestionarios.apk_observaciones ao  
+                    where ao.estado_transferencia = 13
+                    )`;
+  await con.query(query, (err, result) => {
+    if (err) {
+      return res.status(500).json({
+        title: "Error",
+        icon: "error",
+        text: err.message
+      });
+    }
+    console.log(result.rows, "<=== resultado");
+
+    if (result.rowCount > 0) {
+      return res.status(200).json({
+        title: "Cuestionarios",
+        icon: "success",
+        text: "Cuestionarios listados exitosamente",
+        data: result.rows
+      });
+    } else {
+      return res.status(200).json({
+        title: "Cuestionarios",
+        icon: "info",
+        text: "No hay cuestionarios disponibles"
+      });
+    }
+  });
+};
+
+const asignarUsuario = async (req, res) => {
+  var query = `SELECT  vu.aut_id_usuario id_usuario, concat(vu.aut_us_nombres,' ',vu.aut_us_paterno,' ',vu.aut_us_materno) nombres  
+                from monitoreo.vw_usuarios vu 
+                join autenticacion.rol r on r.id_rol = vu.aut_us_rol
+                where r.id_rol in(16,17)`;
+
+  await con.query(query, (err, result) => {
+    if (err) {
+      return res.status(500).json({
+        title: "Error",
+        icon: "error",
+        text: err.message
+      });
+    }
+    if (result.rowCount > 0) {
+      return res.status(200).json({
+        title: "Asistentes",
+        icon: "success",
+        text: "Asistentes listados exitosamente",
+        data: result.rows
+      });
+    } else {
+      return res.status(200).json({
+        title: "Asistentes",
+        icon: "info",
+        text: "No hay asistentes disponibles"
+      });
+    }
+  });
+};
+const asigname = async (req, res) => {
+  const _user = await userData(req, res);
+  if (!_user) {
+    return res.status(401).json({
+      title: "Unauthorized",
+      icon: "error",
+      text: "No estás autorizado para realizar esta acción"
+    });
+  } else {
+    var usuarioAsig = await con.query(`select usu_asig_id, rep_id from "calidad"."cal_asignacion" where id = ${req.body.ids}`);
+
+    await con.query(`UPDATE "cuestionarios"."apk_observaciones" SET "estado_transferencia" = 0 WHERE "rep_id" = ${usuarioAsig.rows[0].rep_id};`)
+
+    await con.query(
+      `UPDATE "calidad"."cal_asignacion" SET  "usu_asig_id" = ${_user.id_usuario} , "usu_ant_id"= ${usuarioAsig.rows[0].usu_asig_id}, "fecha_reasignacion" = CURRENT_TIMESTAMP WHERE "id" = ${req.body.ids};`,
+      (err, result) => {
+        if (err) {
+          return res.status(500).json({
+            title: "Error",
+            icon: "error",
+            text: err.message
+          });
+        }
+        if (result.rowCount > 0) {
+          return res.status(200).json({
+            title: "Asignación",
+            icon: "success",
+            text: "Asignación realizada exitosamente"
+          });
+        }
+      }
+    );
+  }
+};
+module.exports = {
+  listarCuestionarios,
+  asignarUsuario,
+  asigname
+};

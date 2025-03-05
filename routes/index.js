@@ -12,6 +12,7 @@ module.exports = function setupApi() {
   api.use('/dashboard', require('../routes/dashboard.routes'));
   api.use('/validar', require('../routes/validar.routes'));
   api.use('/asignar', require('../routes/asignacion.routes'));
+  api.use('/transferencia', require('../routes/transferencia.routes'));
   api.use('/', require('../routes/log.routes'));
 
   return api;

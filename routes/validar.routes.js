@@ -17,6 +17,7 @@ const {
     getAlertas,
     getListadoCuestionario,
     getListadoPregunta
+    // aprobarCuest
 } = require('../controllers/system/validar.controller');
 
 const router = Router();
@@ -36,5 +37,6 @@ router.get('/getListadoCuest', getListadoCuest);
 router.get('/getAlertas/:id', getAlertas);
 router.get('/getListadoCuestionario/:idrep', getListadoCuestionario);
 router.get ('/getListadoPregunta/:nropre', getListadoPregunta );
+// router.post ('/aprobarCuest', aprobarCuest );
 
 module.exports = router;

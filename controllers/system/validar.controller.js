@@ -50,7 +50,6 @@ const getMpio = async (req, res) => {
       //   from autenticacion.vw_calidad_filtro vcf
       //   where cod_depto = '${id_depto}'`);
 
-
       if (err) {
         return res.json({
           title: "Error",
@@ -76,7 +75,7 @@ const getMpio = async (req, res) => {
     }
   );
 };
-const getCom = async (req, res)=>{
+const getCom = async (req, res) => {
   var id_depto = req.params.depto;
   var id_mpio = req.params.mpio;
 
@@ -88,7 +87,7 @@ const getCom = async (req, res)=>{
     (err, result) => {
       if (err) {
         return res.json({
-          title: "Error", 
+          title: "Error",
           icon: "error",
           text: err.message
         });
@@ -110,7 +109,7 @@ const getCom = async (req, res)=>{
       }
     }
   );
-}
+};
 const getAg = async (req, res) => {
   // console.log(req.params);
   var id_depto = req.params.depto;
@@ -201,7 +200,7 @@ const getEmp = async (req, res) => {
   query += com != "null" ? ` and cod_com = '${com}' ` : "";
   query += ag != "null" ? ` and ag_unico = '${ag}' ` : "";
   query += ae != "null" ? ` and ae_unico = '${ae}' ` : "";
-console.log(query, '<=== empadronador');
+  console.log(query, "<=== empadronador");
 
   con_mon.query(query, (err, result) => {
     if (err) {
@@ -230,11 +229,11 @@ console.log(query, '<=== empadronador');
 };
 
 const getListado = async (req, res) => {
-const _user = await userData(req, res);
+  const _user = await userData(req, res);
   //if (_user) {
   // await con.query(
   //  `select concat(COALESCE(vu.aut_us_nombres, ''),' ',COALESCE(vu.aut_us_paterno, ''),' ',COALESCE(vu.aut_us_materno, ''))nombres, vu.aut_id_usuario id_usuario
-  //      from autenticacion.vw_usuarios vu 
+  //      from autenticacion.vw_usuarios vu
   //  `,
   // (err, result) => {
   //   if (err) {
@@ -267,13 +266,13 @@ const _user = await userData(req, res);
   //});
   //}
 
-  var depto = req.params.depto!='null'?` vcf.cod_depto = '${req.params.depto}'`:'';
-  var mpio = req.params.mpio!='null'?` and vcf.cod_municipio ='${req.params.mpio}'`:'';
-  var com = req.params.com!='null'?` and vcf.cod_com ='${req.params.com}'`:'';
-  var ag = req.params.ag!='null'? ` and vcf.ag_unico = '${req.params.ag}'`:'';
-  var ae = req.params.ae!='null'? ` and vcf.ae_unico = '${req.params.ae}'`:'';
-  var emp = req.params.emp!='null'? ` and vcf.cod_empadronador = ${req.params.emp}`:'';
-  console.log(depto ,mpio ,com ,ag ,ae ,emp,'<==== datos ')
+  var depto = req.params.depto != "null" ? ` vcf.cod_depto = '${req.params.depto}'` : "";
+  var mpio = req.params.mpio != "null" ? ` and vcf.cod_municipio ='${req.params.mpio}'` : "";
+  var com = req.params.com != "null" ? ` and vcf.cod_com ='${req.params.com}'` : "";
+  var ag = req.params.ag != "null" ? ` and vcf.ag_unico = '${req.params.ag}'` : "";
+  var ae = req.params.ae != "null" ? ` and vcf.ae_unico = '${req.params.ae}'` : "";
+  var emp = req.params.emp != "null" ? ` and vcf.cod_empadronador = ${req.params.emp}` : "";
+  console.log(depto, mpio, com, ag, ae, emp, "<==== datos ");
   var query = `select distinct row_number() over(order by vcf.cod_depto )nro, vcf.cod_depto , vcf.depto, vcf.cod_municipio, vcf.cod_municipio mpio, vcf.cod_com, vcf.comunidad, vcf.ag_unico,vcf.ae_unico, 
 vcf.cod_empadronador, vcf.empadronador, vcf.cod_cuest, vcf.rep_id, 
 (select concat(vu.aut_us_nombres,' ',vu.aut_us_paterno,' ',vu.aut_us_materno) nombre
@@ -289,26 +288,26 @@ from calidad.cal_asignacion ca
 join cuestionarios.apk_estados ae on ae.id_estado = ca.estado_id 
 where ca.rep_id = vcf.rep_id)descripcion
 from autenticacion.vw_calidad_filtro vcf 
-where ${depto} ${mpio} ${com} ${ag} ${ae} ${emp};`
-              
-  // var query = `SELECT row_number()over(order by vcf.depto) nro, vcf.depto, vcf.mpio, vcf.comunidad, vcf.ag_unico, vcf.ae_unico, 
+where ${depto} ${mpio} ${com} ${ag} ${ae} ${emp};`;
+
+  // var query = `SELECT row_number()over(order by vcf.depto) nro, vcf.depto, vcf.mpio, vcf.comunidad, vcf.ag_unico, vcf.ae_unico,
   //             vcf.cod_cuest, vcf.empadronador, to_char(ca.fecha_asignacion, 'dd-mm-yyyy') fecha_asig, ce.estado, coalesce(ca.estado_id,0)estado_id,
   //             case when estado_id is null then vu.aut_us_nombres ||' ' ||vu.aut_us_paterno ||' '||vu.aut_us_materno else '' end nombre, vcf.rep_id
-  //             FROM autenticacion.vw_calidad_filtro vcf 
-  //             left join calidad.cal_asignacion ca on ca.usu_asig_id = vcf.aut_id_usuario 
-  //             left join monitoreo.vw_usuarios vu on vu.aut_id_usuario = ca.usu_asig_id 
-  //             left join calidad.cal_estado ce on ce.id_estado = ca.estado_id   
+  //             FROM autenticacion.vw_calidad_filtro vcf
+  //             left join calidad.cal_asignacion ca on ca.usu_asig_id = vcf.aut_id_usuario
+  //             left join monitoreo.vw_usuarios vu on vu.aut_id_usuario = ca.usu_asig_id
+  //             left join calidad.cal_estado ce on ce.id_estado = ca.estado_id
   //             where ${depto} ${mpio} ${com} ${ag} ${ae} ${emp}`;
-  // var query = `select row_number() over(order by a.cod_cuest) nro, a.*, to_char(ca.fecha_asignacion, 'dd-mm-yyyy')fecha_asig, 
+  // var query = `select row_number() over(order by a.cod_cuest) nro, a.*, to_char(ca.fecha_asignacion, 'dd-mm-yyyy')fecha_asig,
   //           concat(COALESCE(vu.aut_us_nombres,null),' ',COALESCE (vu.aut_us_paterno,null),' ',COALESCE (vu.aut_us_materno, null)) nombre, ca.estado_id, ce.estado,
   //           ca.estado_id, ce.estado
-  //           from autenticacion.vw_calidad_filtro a 
+  //           from autenticacion.vw_calidad_filtro a
   //         left join calidad.cal_asignacion ca on ca.rep_id = a.rep_id
-  //         left join monitoreo.vw_usuarios vu on vu.aut_id_usuario = ca.usu_asig_id 
+  //         left join monitoreo.vw_usuarios vu on vu.aut_id_usuario = ca.usu_asig_id
   //         left join calidad.cal_estado ce on ce.id_estado = ca.estado_id  where a.cod_depto::int = ca.cod_depto::int and ca.usu_asig_id = ${_user.id_usuario}`;
-  console.log(query, '<=== listado');
-  
-          con_mon.query(query, (  err, result) => {
+  console.log(query, "<=== listado");
+
+  con_mon.query(query, (err, result) => {
     if (err) {
       return res.json({
         title: "Error",
@@ -323,12 +322,12 @@ where ${depto} ${mpio} ${com} ${ag} ${ae} ${emp};`
         text: "Se listo correctamente",
         data: result.rows
       });
-    }else{
+    } else {
       return res.status(200).json({
         title: "Información",
         icon: "info",
         text: "No se encontraron Datos",
-        data: ''
+        data: ""
       });
     }
   });
@@ -349,7 +348,7 @@ const getListadoCuestionario = async (req, res) => {
           left join monitoreo.vw_usuarios vu on vu.aut_id_usuario = ca.usu_asig_id 
           left join calidad.cal_estado ce on ce.id_estado = ca.estado_id`;
   con_mon.query(query, (err, result) => {
-    console.log(query, '<== query')
+    console.log(query, "<== query");
     if (err) {
       return res.json({
         title: "Error",
@@ -455,61 +454,98 @@ const getValidar = async (req, res, next) => {
 };
 
 const saveValidar = async (req, res) => {
-  // console.log(req.body);
+  console.log(req.body, "<=== SAVEvALIDAR");
   let _user = await userData(req, res);
-  var tipo = req.body.tipo == "validar"
+  var tipo = req.body.tipo 
   var ids = req.body.ids;
   var observacion = req.body.dato;
   var estado = 0;
   var insertarRegistro = true;
-  var mensaje = '';
-  try {
-    if (tipo) {
-      estado = 7;
-      observacion = '';
-    } else
-      estado = 4
+  var mensaje = "";
+  // try {
+    switch (tipo) { 
+      case 4:
+        estado = 4;
+        break;   
+      case 7:
+        estado = 7;
+        observacion = ""; 
+        break;
+      case 13:
+        estado = 13;
+        break;
+      default:
+        estado = 'error';
+        break;
+    }
+    // console.log(estado,'<??? estado'); 
+     
+    // if (tipo) {
+    //   estado = 7;
+    //   observacion = "";
+    // } else estado = 4; 
     // console.log(`SELECT count(1) cant  from cuestionarios.apk_observaciones co where rep_id = ${ids} and id_tipo = ${tipo}`);
+    // console.log(registro, '<=== registro');
     var estadoCuestionario = await con.query(
       `SELECT obs_id, rep_id, estado_id, tipo 
         FROM cuestionarios.apk_observaciones where rep_id = ${ids} and tipo = 'CUESTIONARIO'
-        order by cuestionarios.apk_observaciones.obs_id desc limit 1 `);
+        order by cuestionarios.apk_observaciones.obs_id desc limit 1 `
+    );
 
     const estadoPreguntas = await con.query(` SELECT DISTINCT ON (pre_id) pre_id, estado_id, obs_observacion 
           FROM cuestionarios.apk_observaciones where tipo = 'PREGUNTA' and rep_id = ${ids}
           order by pre_id, cuestionarios.apk_observaciones.obs_id desc`);
 
-    if ((estadoCuestionario.rowCount == 1) && (registro.rows[0].estado_id == 7)) {
+    if (estadoCuestionario.rowCount == 1 && estadoCuestionario.rows[0].estado_id == 7) {
       insertarRegistro = false;
-      mensaje = 'El cuestionario ya se encuentra aprobado. No se permite ninguna acción'
-    } else if ((estadoCuestionario.rowCount == 1) && (registro.rows[0].estado_id == 4)) {
+      mensaje = "El cuestionario ya se encuentra aprobado. No se permite ninguna acción";
+    } else if (estadoCuestionario.rowCount == 1 && estadoCuestionario.rows[0].estado_id == 4) {
       if (estado == 7) {
-        insertarRegistro = false
-        mensaje = 'El cuestionario se encuentra observado. No se puede validar el cuestionario';
-      }
-    } else {
+        insertarRegistro = false;
+        mensaje = "El cuestionario se encuentra observado. No se puede validar el cuestionario";
+      } 
+    }else if(estadoCuestionario.rowCount == 1 && estadoCuestionario.rows[0].estado_id == 13){
+      if (estado == 7) {
+        insertarRegistro = false;
+        mensaje = "El cuestionario se encuentra Transferido. No se puede validar el cuestionario";
+      } 
+    }else {
       const pendientes = estadoPreguntas.rows.filter(x => [5, 4, 8, 10].includes(x.estado_id));
       if (estado == 7) {
         if (pendientes.length > 0) {
-          insertarRegistro = false
-          mensaje = 'Existen alertas que aún no fueron aprobadas. No se puede validar el cuestionario';
+          insertarRegistro = false;
+          mensaje = "Existen alertas que aún no fueron aprobadas. No se puede validar el cuestionario";
         }
       }
       if (estado == 4) {
         if (pendientes.length == 0) {
-          insertarRegistro = false
-          mensaje = 'No existen alertas observadas. No se puede observar el cuestionario';
+          insertarRegistro = false;
+          mensaje = "No existen alertas observadas. No se puede observar el cuestionario";
         }
       }
     }
     if (insertarRegistro) {
-      var result = await con.query(
-        ` INSERT INTO cuestionarios.apk_observaciones
-            (cue_id, rep_id, usu_id, obs_observacion, usucre_id, obs_eliminado, fecha_sincronizacion, id_sincronizacion, device_id, sincronizado, estado_id, tipo)
-            VALUES(1, ${ids}, 0, '${observacion}', ${_user.id_usuario}, false, null, productores.generar_codigo_unico_sincronizacion(), 'server'::character varying, false, ${estado}, 'CUESTIONARIO') RETURNING * `);
+      var result = [''];
+      if (estado == 13){
+        result = await con.query(
+          ` INSERT INTO cuestionarios.apk_observaciones
+              (cue_id, rep_id, usu_id, obs_observacion, usucre_id, obs_eliminado, fecha_sincronizacion, id_sincronizacion, device_id, sincronizado, estado_id, tipo, estado_transferencia)
+              VALUES(1, ${ids}, 0, '${observacion}', ${_user.id_usuario}, false, null, productores.generar_codigo_unico_sincronizacion(), 
+              'server'::character varying, false, 4, 'CUESTIONARIO',${estado}) RETURNING * `
+        );
+      }else{
+        result = await con.query(
+          ` INSERT INTO cuestionarios.apk_observaciones
+              (cue_id, rep_id, usu_id, obs_observacion, usucre_id, obs_eliminado, fecha_sincronizacion, id_sincronizacion, device_id, sincronizado, estado_id, tipo)
+              VALUES(1, ${ids}, 0, '${observacion}', ${_user.id_usuario}, false, null, productores.generar_codigo_unico_sincronizacion(), 
+              'server'::character varying, false, ${estado}, 'CUESTIONARIO') RETURNING * `
+        );
+      }
 
       if (result.rowCount > 0) {
-        const updateReplica = await con.query(` UPDATE cuestionarios.apk_replicas SET fk_id_estado= ${estado} WHERE rep_id= ${ids} `);
+        const updateReplica = await con.query(
+          ` UPDATE cuestionarios.apk_replicas SET fk_id_estado= ${estado} WHERE rep_id= ${ids} `
+        );
 
         return res.status(200).json({
           title: "Correcto",
@@ -533,13 +569,13 @@ const saveValidar = async (req, res) => {
         data: null
       });
     }
-  } catch (error) {
-    return res.status(404).json({
-      title: "Error",
-      icon: "error",
-      text: error.message
-    });
-  }
+  // } catch (error) {
+  //   return res.status(404).json({
+  //     title: "Error",
+  //     icon: "error",
+  //     text: error.message
+  //   });
+  // }
 };
 
 const saveAsignar = async (req, res) => {
@@ -603,7 +639,7 @@ const getListadoCuest = async (req, res) => {
               join cuestionarios.apk_replicas ar on ar.rep_id = ca.rep_id 
               join marco_area.vw_ca_aes_6mpios ae2 on ae2.ae_unico = ar.rep_ae 
               join cuestionarios.apk_cuestionarios ac on ac.cue_id = ar.fk_cue_id 
-              join cuestionarios.apk_estados ae  on ae.id_estado = ar.fk_id_estado and ae.id_estado in (3, 5, 4, 8)  
+              join cuestionarios.apk_estados ae  on ae.id_estado = ar.fk_id_estado and ae.id_estado in (3, 5, 4, 8, 10, 13)  
               where ca.id in(
                     select id 
                     from(
@@ -612,7 +648,7 @@ const getListadoCuest = async (req, res) => {
                     group by rep_id) a 
                     )
               and usu_asig_id = ${_user.id_usuario}`;
-  console.log(query, '<=== getListadoCuest');
+  // console.log(query, '<=== getListadoCuest');
 
   await con.query(query, (err, result) => {
     if (err) {
@@ -647,7 +683,7 @@ const getAlertas = async (req, res) => {
   var getPreg = await con.query(`select distinct cv.pre_numero_pregunta , ap.pre_pregunta
               from calidad.cal_validaciones cv 
               join cuestionarios.apk_preguntas ap on ap.pre_numero_pregunta::text  = cv.pre_numero_pregunta::text
-              where cv.pre_numero_pregunta not in( 16,18,29) and fk_sec_id < 227 order by 1`)
+              where cv.pre_numero_pregunta not in( 16,18,29) and fk_sec_id < 227 order by 1`);
   var datosGenerales = await con.query(`select row_number() over(order by ca.depto)nro,ca.depto, ca.mpio,ae2.ag_unico, ae2.ae_unico,  ca.rep_id, concat(vu.aut_us_nombres,' ',vu.aut_us_paterno,' ',vu.aut_us_materno)nombres , vu.aut_us_ci,ae.descripcion estado , ae.id_estado estado_id, ar.rep_folio_upa cuestionario, ac.cue_titulo 
                                       from calidad.cal_asignacion ca 
                                       join monitoreo.vw_usuarios vu on ca.usu_asig_id = vu.aut_id_usuario
@@ -663,10 +699,18 @@ const getAlertas = async (req, res) => {
                                             group by rep_id) a 
                                             )
                                       and ar.rep_id =${rep_id}`);
-  await con.query(`select * from calidad.fn_calidad_bucle(${rep_id}, 0 ,'${datosGenerales.rows[0].depto}', '${datosGenerales.rows[0].mpio}',${_user.id_usuario})`)
+  await con.query(
+    `select * from calidad.fn_calidad_bucle(${rep_id}, 0 ,'${datosGenerales.rows[0].depto}', '${datosGenerales.rows[0].mpio}',${
+      _user.id_usuario
+    })`
+  );
   for (const a of getPreg.rows) {
     // console.log(a.pre_numero_pregunta, rep_id, datosGenerales.rows[0].depto, datosGenerales.rows[0].mpio);
-  await con.query(`select * from calidad.fn_validacion_calidad(${a.pre_numero_pregunta},${rep_id}, '${datosGenerales.rows[0].depto}', '${datosGenerales.rows[0].mpio}',${_user.id_usuario}) res`)
+    await con.query(
+      `select * from calidad.fn_validacion_calidad(${a.pre_numero_pregunta},${rep_id}, '${datosGenerales.rows[0].depto}', '${
+        datosGenerales.rows[0].mpio
+      }',${_user.id_usuario}) res`
+    );
     // console.log(queryRes.rows);
     // array.push(queryRes.rows[0].res)
   }
@@ -691,31 +735,31 @@ const getAlertas = async (req, res) => {
                         join cuestionarios.apk_estados ae on ae.id_estado = ao.estado_id 
                         where ao.rep_id = ${rep_id} and fk_sec_id < 227  and ap.pre_numero_pregunta  = '16.1'
                         )b 
-                        order by 3`; 
+                        order by 3`;
   await con.query(queryResultado, (err, result) => {
     if (err) {
       return res.status(404).json({
-        title: 'Error',
-        icon: 'error',
-        text: err.message 
+        title: "Error",
+        icon: "error",
+        text: err.message
       });
     }
-    if(result.rowCount > 0) {
+    if (result.rowCount > 0) {
       return res.status(200).json({
-        title: 'Correcto',
-        icon:'success',
-        text: 'Se obtuvo todas las alertas',
+        title: "Correcto",
+        icon: "success",
+        text: "Se obtuvo todas las alertas",
         data: result.rows
-      })
-    }else{
+      });
+    } else {
       return res.status(200).json({
-        title: 'Información ',
-        icon:'info',
-        text: 'No se encontraron observaciones',
-        data: ''
-      })
+        title: "Información ",
+        icon: "info",
+        text: "No se encontraron observaciones",
+        data: ""
+      });
     }
-  })
+  });
   // getPreg.rows.forEach((e, i) => {
   //   e.depto = datosGenerales.rows[0].depto,
   //     e.mpio = datosGenerales.rows[0].mpio,
@@ -723,23 +767,39 @@ const getAlertas = async (req, res) => {
   //     e.ae_unico = datosGenerales.rows[0].ae_unico,
   //     e.rep_id = datosGenerales.rows[0].rep_id,
   //     e.nombres = datosGenerales.rows[0].nombres,
-  //     e.cuestionario = datosGenerales.rows[0].cuestionario,   
-  //     e.cue_titulo = datosGenerales.rows[0].cue_titulo, 
-  //     e.respuesta = array[i]  
-  //   }); 
-    // console.log(getPreg,'<====jgh');
-    
-     
-  
-    
-      // return res.status(200).json({ 
-      //   title: 'Correcto', 
-      //   icon:'success',   
-      //   text: 'Se obtuvo todas las alertas',   
-      //   data: getPreg
-      // }) 
-}
+  //     e.cuestionario = datosGenerales.rows[0].cuestionario,
+  //     e.cue_titulo = datosGenerales.rows[0].cue_titulo,
+  //     e.respuesta = array[i]
+  //   });
+  // console.log(getPreg,'<====jgh');
 
+  // return res.status(200).json({
+  //   title: 'Correcto',
+  //   icon:'success',
+  //   text: 'Se obtuvo todas las alertas',
+  //   data: getPreg
+  // })
+};
+// const aprobarCuest = async(req,res) => {
+//   const { rep_id } = req.params;
+//   const { _user } = req;
+//   const query = `update cuestionarios.apk_replicas set fk_id_estado = 7 where rep_id = ${rep_id}`;
+//   await con.query(query, (err, result) => {
+//     if (err) {
+//       return res.status(404).json({
+//         title: "Error",
+//         icon: "error",
+//         text: err.message
+//       });
+//     }
+//     return res.status(200).json({
+//       title: "Correcto",
+//       icon: "success",
+//       text: "Se aprobó el cuestionario",
+//       data: result.rows
+//     });
+//   });
+// }
 module.exports = {
   getDepto,
   getMpio,
@@ -756,4 +816,5 @@ module.exports = {
   getAlertas,
   getListadoCuestionario,
   getListadoPregunta
+  // aprobarCuest
 };
