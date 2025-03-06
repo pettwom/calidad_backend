@@ -200,7 +200,7 @@ const getEmp = async (req, res) => {
   query += com != "null" ? ` and cod_com = '${com}' ` : "";
   query += ag != "null" ? ` and ag_unico = '${ag}' ` : "";
   query += ae != "null" ? ` and ae_unico = '${ae}' ` : "";
-  console.log(query, "<=== empadronador");
+  // console.log(query, "<=== empadronador");
 
   con_mon.query(query, (err, result) => {
     if (err) {
@@ -230,109 +230,87 @@ const getEmp = async (req, res) => {
 
 const getListado = async (req, res) => {
   const _user = await userData(req, res);
-  //if (_user) {
-  // await con.query(
-  //  `select concat(COALESCE(vu.aut_us_nombres, ''),' ',COALESCE(vu.aut_us_paterno, ''),' ',COALESCE(vu.aut_us_materno, ''))nombres, vu.aut_id_usuario id_usuario
-  //      from autenticacion.vw_usuarios vu
-  //  `,
-  // (err, result) => {
-  //   if (err) {
-  //     return res.json({
-  //       title: "Error",
-  //      icon: "error",
-  //      text: err.message
-  //    });
-  //  }
-  //  if (result.rowCount > 0) {
-  //    return res.status(200).json({
-  //      title: "Correcto",
-  //      icon: "success",
-  //      text: "Se listaron correctamente los usuarios",
-  //      data: result.rows
-  //    });
-  //  } else {
-  //    return res.status(200).json({
-  //      title: "Información",
-  //      icon: "info",
-  //      text: "No se encontraron Datos",
-  //      data: ""
-  //    });
-  //  }
-  //  }
-  //);
-  //} else {
-  // return res.status(401).json({
-  //  message: "jwt expired"
-  //});
-  //}
-
   var depto = req.params.depto != "null" ? ` vcf.cod_depto = '${req.params.depto}'` : "";
   var mpio = req.params.mpio != "null" ? ` and vcf.cod_municipio ='${req.params.mpio}'` : "";
   var com = req.params.com != "null" ? ` and vcf.cod_com ='${req.params.com}'` : "";
   var ag = req.params.ag != "null" ? ` and vcf.ag_unico = '${req.params.ag}'` : "";
   var ae = req.params.ae != "null" ? ` and vcf.ae_unico = '${req.params.ae}'` : "";
   var emp = req.params.emp != "null" ? ` and vcf.cod_empadronador = ${req.params.emp}` : "";
-  console.log(depto, mpio, com, ag, ae, emp, "<==== datos ");
-  var query = `select distinct row_number() over(order by vcf.cod_depto )nro, vcf.cod_depto , vcf.depto, vcf.cod_municipio, vcf.cod_municipio mpio, vcf.cod_com, vcf.comunidad, vcf.ag_unico,vcf.ae_unico, 
-vcf.cod_empadronador, vcf.empadronador, vcf.cod_cuest, vcf.rep_id, 
-(select concat(vu.aut_us_nombres,' ',vu.aut_us_paterno,' ',vu.aut_us_materno) nombre
-from calidad.cal_asignacion ca 
-join monitoreo.vw_usuarios vu on vu.aut_id_usuario = ca.usu_asig_id 
-where ca.rep_id = vcf.rep_id)nombre,
-(select ca.fecha_asignacion 
-from calidad.cal_asignacion ca 
-join monitoreo.vw_usuarios vu on vu.aut_id_usuario = ca.usu_asig_id 
-where ca.rep_id = vcf.rep_id)fecha_asig,
-(select ae.descripcion
-from calidad.cal_asignacion ca 
-join cuestionarios.apk_estados ae on ae.id_estado = ca.estado_id 
-where ca.rep_id = vcf.rep_id)descripcion
-from autenticacion.vw_calidad_filtro vcf 
-where ${depto} ${mpio} ${com} ${ag} ${ae} ${emp};`;
-
-  // var query = `SELECT row_number()over(order by vcf.depto) nro, vcf.depto, vcf.mpio, vcf.comunidad, vcf.ag_unico, vcf.ae_unico,
-  //             vcf.cod_cuest, vcf.empadronador, to_char(ca.fecha_asignacion, 'dd-mm-yyyy') fecha_asig, ce.estado, coalesce(ca.estado_id,0)estado_id,
-  //             case when estado_id is null then vu.aut_us_nombres ||' ' ||vu.aut_us_paterno ||' '||vu.aut_us_materno else '' end nombre, vcf.rep_id
-  //             FROM autenticacion.vw_calidad_filtro vcf
-  //             left join calidad.cal_asignacion ca on ca.usu_asig_id = vcf.aut_id_usuario
-  //             left join monitoreo.vw_usuarios vu on vu.aut_id_usuario = ca.usu_asig_id
-  //             left join calidad.cal_estado ce on ce.id_estado = ca.estado_id
-  //             where ${depto} ${mpio} ${com} ${ag} ${ae} ${emp}`;
-  // var query = `select row_number() over(order by a.cod_cuest) nro, a.*, to_char(ca.fecha_asignacion, 'dd-mm-yyyy')fecha_asig,
-  //           concat(COALESCE(vu.aut_us_nombres,null),' ',COALESCE (vu.aut_us_paterno,null),' ',COALESCE (vu.aut_us_materno, null)) nombre, ca.estado_id, ce.estado,
-  //           ca.estado_id, ce.estado
-  //           from autenticacion.vw_calidad_filtro a
-  //         left join calidad.cal_asignacion ca on ca.rep_id = a.rep_id
-  //         left join monitoreo.vw_usuarios vu on vu.aut_id_usuario = ca.usu_asig_id
-  //         left join calidad.cal_estado ce on ce.id_estado = ca.estado_id  where a.cod_depto::int = ca.cod_depto::int and ca.usu_asig_id = ${_user.id_usuario}`;
-  console.log(query, "<=== listado");
-
-  con_mon.query(query, (err, result) => {
-    if (err) {
-      return res.json({
-        title: "Error",
-        icon: "error",
-        text: err.message
-      });
-    }
-    if (result.rowCount > 0) {
-      return res.status(200).json({
-        title: "Correcto",
-        icon: "success",
-        text: "Se listo correctamente",
-        data: result.rows
-      });
-    } else {
-      return res.status(200).json({
-        title: "Información",
-        icon: "info",
-        text: "No se encontraron Datos",
-        data: ""
-      });
-    }
-  });
+  console.log(req.params.accion, '<=== accion');
+  
+  if(req.params.accion != 2){
+    var verificacion = await VerificarEstados(depto, mpio, com, ag, ae, emp, _user.id_usuario);
+  }
+  var result = await con_mon.query(
+    `select distinct row_number() over(order by vcf.cod_depto )nro, vcf.cod_depto , vcf.depto, vcf.cod_municipio, vcf.mpio, vcf.cod_com, vcf.comunidad, vcf.ag_unico,vcf.ae_unico, 
+                vcf.cod_empadronador, vcf.empadronador, vcf.cod_cuest, vcf.rep_id, vcf.estado_rep,
+                (select COALESCE(concat(coalesce(vu.aut_us_nombres,''),' ', coalesce(vu.aut_us_paterno,''),' ',coalesce(vu.aut_us_materno, '')),'') nombre
+                from calidad.cal_asignacion ca 
+                join monitoreo.vw_usuarios vu on vu.aut_id_usuario = ca.usu_asig_id 
+                where ca.rep_id = vcf.rep_id)nombre,
+                (select to_char(ca.fecha_asignacion, 'dd-mm-yyyy') fecha_asignacion 
+                from calidad.cal_asignacion ca 
+                join monitoreo.vw_usuarios vu on vu.aut_id_usuario = ca.usu_asig_id 
+                where ca.rep_id = vcf.rep_id)fecha_asig,
+                (select ae.descripcion
+                from calidad.cal_asignacion ca 
+                join cuestionarios.apk_estados ae on ae.id_estado = ca.estado_id 
+                where ca.rep_id = vcf.rep_id)descripcion,
+                             (select ca.estado_id
+                from calidad.cal_asignacion ca
+                join cuestionarios.apk_estados ae on ae.id_estado = ca.estado_id
+                where ca.rep_id = vcf.rep_id)estado_id
+                from autenticacion.vw_calidad_filtro vcf 
+                where ${depto} ${mpio} ${com} ${ag} ${ae} ${emp};`
+  );
+  console.log(result.rows, '<=== result');
+  
+  if (result.rowCount > 0) {
+    return res.status(200).json({
+      title: "Correcto",
+      icon: "success",
+      text: "Se listo correctamente",
+      data: result.rows
+    });
+  } else {
+    return res.status(200).json({
+      title: "Información",
+      icon: "info",
+      text: "No se encontraron Datos",
+      data: ""
+    });
+  }
 };
 
+const VerificarEstados = async (depto, mpio, com, ag, ae, emp, id_usuario) => {
+  var res_rep = await con_mon.query(`select vcf.rep_id
+    from autenticacion.vw_calidad_filtro vcf
+    where  ${depto} ${mpio} ${com} ${ag} ${ae} ${emp}`);
+  var res_preg = await con_mon.query(`select distinct cv.pre_numero_pregunta  from calidad.cal_validaciones cv order by 1`);
+  var res_ubicacion = await con_mon.query(`select distinct vcf.depto::TEXT, vcf.mpio::TEXT
+    from autenticacion.vw_calidad_filtro vcf 
+    where  ${depto} ${mpio} ${com} ${ag} ${ae} ${emp}`);
+  // console.log(res_preg);
+  if (res_rep.rowCount > 0) {
+    res_rep.rows.forEach(row => {
+      res_preg.rows.forEach(preg => {
+        if (preg.pre_numero_pregunta < 30) {
+          con_mon.query(
+            `select * from  calidad.fn_calidad_bucle_general(${row.rep_id}, ${preg.pre_numero_pregunta} , '${
+              res_ubicacion.rows[0].depto
+            }', '${res_ubicacion.rows[0].mpio}', ${id_usuario})`
+          );
+        } else {
+          con_mon.query(
+            `select * from calidad.fn_validacion_calidad_general(${preg.pre_numero_pregunta} , ${row.rep_id}, '${
+              res_ubicacion.rows[0].depto
+            }', '${res_ubicacion.rows[0].mpio}', ${id_usuario})`
+          );
+        }
+      });
+    });
+  }
+};
 // para listado de cuestionario
 const getListadoCuestionario = async (req, res) => {
   var idrep = req.params.id_rep;
@@ -456,119 +434,123 @@ const getValidar = async (req, res, next) => {
 const saveValidar = async (req, res) => {
   console.log(req.body, "<=== SAVEvALIDAR");
   let _user = await userData(req, res);
-  var tipo = req.body.tipo 
+  var tipo = req.body.tipo;
   var ids = req.body.ids;
   var observacion = req.body.dato;
   var estado = 0;
   var insertarRegistro = true;
   var mensaje = "";
   // try {
-    switch (tipo) { 
-      case 4:
-        estado = 4;
-        break;   
-      case 7:
-        estado = 7;
-        observacion = ""; 
-        break;
-      case 13:
-        estado = 13;
-        break;
-      default:
-        estado = 'error';
-        break;
-    }
-    // console.log(estado,'<??? estado'); 
-     
-    // if (tipo) {
-    //   estado = 7;
-    //   observacion = "";
-    // } else estado = 4; 
-    // console.log(`SELECT count(1) cant  from cuestionarios.apk_observaciones co where rep_id = ${ids} and id_tipo = ${tipo}`);
-    // console.log(registro, '<=== registro');
-    var estadoCuestionario = await con.query(
-      `SELECT obs_id, rep_id, estado_id, tipo 
+  switch (tipo) {
+    case 4:
+      estado = 4;
+      break;
+    case 7:
+      estado = 7;
+      observacion = "";
+      break;
+    case 13:
+      estado = 13;
+      break;
+    default:
+      estado = "error";
+      break;
+  }
+  // console.log(estado,'<??? estado');
+
+  // if (tipo) {
+  //   estado = 7;
+  //   observacion = "";
+  // } else estado = 4;
+  // console.log(`SELECT count(1) cant  from cuestionarios.apk_observaciones co where rep_id = ${ids} and id_tipo = ${tipo}`);
+  // console.log(registro, '<=== registro');
+  var estadoCuestionario = await con.query(
+    `SELECT obs_id, rep_id, estado_id, tipo 
         FROM cuestionarios.apk_observaciones where rep_id = ${ids} and tipo = 'CUESTIONARIO'
         order by cuestionarios.apk_observaciones.obs_id desc limit 1 `
-    );
+  );
 
-    const estadoPreguntas = await con.query(` SELECT DISTINCT ON (pre_id) pre_id, estado_id, obs_observacion 
+  const estadoPreguntas = await con.query(` SELECT DISTINCT ON (pre_id) pre_id, estado_id, obs_observacion 
           FROM cuestionarios.apk_observaciones where tipo = 'PREGUNTA' and rep_id = ${ids}
           order by pre_id, cuestionarios.apk_observaciones.obs_id desc`);
 
-    if (estadoCuestionario.rowCount == 1 && estadoCuestionario.rows[0].estado_id == 7) {
+  if (estadoCuestionario.rowCount == 1 && estadoCuestionario.rows[0].estado_id == 7) {
+    insertarRegistro = false;
+    mensaje = "El cuestionario ya se encuentra aprobado. No se permite ninguna acción";
+  } else if (estadoCuestionario.rowCount == 1 && estadoCuestionario.rows[0].estado_id == 4) {
+    if (estado == 7) {
       insertarRegistro = false;
-      mensaje = "El cuestionario ya se encuentra aprobado. No se permite ninguna acción";
-    } else if (estadoCuestionario.rowCount == 1 && estadoCuestionario.rows[0].estado_id == 4) {
-      if (estado == 7) {
+      mensaje = "El cuestionario se encuentra observado. No se puede validar el cuestionario";
+    }
+  } else if (estadoCuestionario.rowCount == 1 && estadoCuestionario.rows[0].estado_id == 13) {
+    if (estado == 7) {
+      insertarRegistro = false;
+      mensaje = "El cuestionario se encuentra Transferido. No se puede validar el cuestionario";
+    }
+  } else {
+    const pendientes = estadoPreguntas.rows.filter(x => [5, 4, 8, 10].includes(x.estado_id));
+    if (estado == 7) {
+      if (pendientes.length > 0) {
         insertarRegistro = false;
-        mensaje = "El cuestionario se encuentra observado. No se puede validar el cuestionario";
-      } 
-    }else if(estadoCuestionario.rowCount == 1 && estadoCuestionario.rows[0].estado_id == 13){
-      if (estado == 7) {
-        insertarRegistro = false;
-        mensaje = "El cuestionario se encuentra Transferido. No se puede validar el cuestionario";
-      } 
-    }else {
-      const pendientes = estadoPreguntas.rows.filter(x => [5, 4, 8, 10].includes(x.estado_id));
-      if (estado == 7) {
-        if (pendientes.length > 0) {
-          insertarRegistro = false;
-          mensaje = "Existen alertas que aún no fueron aprobadas. No se puede validar el cuestionario";
-        }
-      }
-      if (estado == 4) {
-        if (pendientes.length == 0) {
-          insertarRegistro = false;
-          mensaje = "No existen alertas observadas. No se puede observar el cuestionario";
-        }
+        mensaje = "Existen alertas que aún no fueron aprobadas. No se puede validar el cuestionario";
       }
     }
-    if (insertarRegistro) {
-      var result = [''];
-      if (estado == 13){
-        result = await con.query(
-          ` INSERT INTO cuestionarios.apk_observaciones
+    if (estado == 4) {
+      if (pendientes.length == 0) {
+        insertarRegistro = false;
+        mensaje = "No existen alertas observadas. No se puede observar el cuestionario";
+      }
+    }
+  }
+  if (insertarRegistro) {
+    var result = [""];
+    if (estado == 13) {
+      result = await con.query(
+        ` INSERT INTO cuestionarios.apk_observaciones
               (cue_id, rep_id, usu_id, obs_observacion, usucre_id, obs_eliminado, fecha_sincronizacion, id_sincronizacion, device_id, sincronizado, estado_id, tipo, estado_transferencia)
-              VALUES(1, ${ids}, 0, '${observacion}', ${_user.id_usuario}, false, null, productores.generar_codigo_unico_sincronizacion(), 
+              VALUES(1, ${ids}, 0, '${observacion}', ${
+          _user.id_usuario
+        }, false, null, productores.generar_codigo_unico_sincronizacion(), 
               'server'::character varying, false, 4, 'CUESTIONARIO',${estado}) RETURNING * `
-        );
-      }else{
-        result = await con.query(
-          ` INSERT INTO cuestionarios.apk_observaciones
+      );
+    } else {
+      result = await con.query(
+        ` INSERT INTO cuestionarios.apk_observaciones
               (cue_id, rep_id, usu_id, obs_observacion, usucre_id, obs_eliminado, fecha_sincronizacion, id_sincronizacion, device_id, sincronizado, estado_id, tipo)
-              VALUES(1, ${ids}, 0, '${observacion}', ${_user.id_usuario}, false, null, productores.generar_codigo_unico_sincronizacion(), 
+              VALUES(1, ${ids}, 0, '${observacion}', ${
+          _user.id_usuario
+        }, false, null, productores.generar_codigo_unico_sincronizacion(), 
               'server'::character varying, false, ${estado}, 'CUESTIONARIO') RETURNING * `
-        );
-      }
+      );
+    }
 
-      if (result.rowCount > 0) {
-        const updateReplica = await con.query(
-          ` UPDATE cuestionarios.apk_replicas SET fk_id_estado= ${estado} WHERE rep_id= ${ids} `
-        );
+    if (result.rowCount > 0) {
+      const updateReplica = await con.query(
+        ` UPDATE cuestionarios.apk_replicas SET fk_id_estado= ${estado} WHERE rep_id= ${ids} `
+      );
 
-        return res.status(200).json({
-          title: "Correcto",
-          icon: "success",
-          text: "Se registró correctamente",
-          data: result.rows
-        });
-      } else {
-        return res.status(200).json({
-          title: "Error",
-          icon: "error",
-          text: "No se guardó el registro",
-          data: result.rows
-        });
-      }
+      return res.status(200).json({
+        title: "Correcto",
+        icon: "success",
+        text: "Se registró correctamente",
+        data: result.rows
+      });
     } else {
       return res.status(200).json({
         title: "Error",
         icon: "error",
-        text: mensaje,
-        data: null
+        text: "No se guardó el registro",
+        data: result.rows
       });
     }
+  } else {
+    return res.status(200).json({
+      title: "Error",
+      icon: "error",
+      text: mensaje,
+      data: null
+    });
+  }
   // } catch (error) {
   //   return res.status(404).json({
   //     title: "Error",
@@ -648,7 +630,7 @@ const getListadoCuest = async (req, res) => {
                     group by rep_id) a 
                     )
               and usu_asig_id = ${_user.id_usuario}`;
-  // console.log(query, '<=== getListadoCuest');
+  console.log(query, '<=== getListadoCuest');
 
   await con.query(query, (err, result) => {
     if (err) {

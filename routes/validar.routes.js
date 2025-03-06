@@ -28,7 +28,7 @@ router.get('/getCom/:depto/:mpio', getCom);
 router.get('/getAg/:depto/:mpio/:com', getAg);
 router.get('/getAe/:depto/:mpio/:ag', getAe);
 router.get('/getEmp/:depto/:mpio/:com/:ag/:ae', getEmp);
-router.get('/getListado/:depto/:mpio/:com/:ag/:ae/:emp', getListado);
+router.get('/getListado/:depto/:mpio/:com/:ag/:ae/:emp/:accion', getListado);
 router.get('/migrarDatos', migrarDatos);
 router.get('/getValidar/:ids', getValidar);
 router.post('/save-validar', saveValidar);
