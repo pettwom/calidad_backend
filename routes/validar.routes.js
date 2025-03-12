@@ -26,7 +26,7 @@ router.get('/getDeptos', getDepto);
 router.get('/getMpio/:depto', getMpio);
 router.get('/getCom/:depto/:mpio', getCom);
 router.get('/getAg/:depto/:mpio/:com', getAg);
-router.get('/getAe/:depto/:mpio/:ag', getAe);
+router.get('/getAe/:depto/:mpio/:com/:ag', getAe);
 router.get('/getEmp/:depto/:mpio/:com/:ag/:ae', getEmp);
 router.get('/getListado/:depto/:mpio/:com/:ag/:ae/:emp/:accion', getListado);
 router.get('/migrarDatos', migrarDatos);

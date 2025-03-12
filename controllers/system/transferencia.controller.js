@@ -2,23 +2,29 @@ const { con } = require("../../config/db");
 const { userData } = require("../../lib/auth");
 
 const listarCuestionarios = async (req, res) => {
-  var query = `select distinct row_number() over(order by ca.depto)nro,* 
-                    from calidad.cal_asignacion ca
-                    join autenticacion.vw_calidad_filtro vcf on vcf.rep_id = ca.rep_id
-                    where ca.rep_id in(
-                    select rep_id
-                    from cuestionarios.apk_observaciones ao  
-                    where ao.estado_transferencia = 13
-                    )`;
+  var query = `select row_number()over(order by vcf.depto)nro, vcf.depto, vcf.mpio, vcf.comunidad, vcf.ag_unico, vcf.ae_unico, vcf.cod_cuest, 
+              vcf.cue_titulo, cod_empadronador, empadronador,vcf.estado_rep, vcf.descripcion, vcf.rep_id, ca.id
+              from autenticacion.vw_calidad_filtro vcf
+              join calidad.cal_asignacion ca on ca.rep_id = vcf.rep_id
+              where vcf.estado_transferencia = 13`;
+  // var query = `select distinct row_number()over(order by depto)nro, depto, mpio, comunidad, vcf.ag_unico, vcf.ae_unico, vcf.cod_cuest, 
+  //             vcf.cue_titulo, cod_empadronador, empadronador,vcf.estado_rep, ae.descripcion, vcf.rep_id
+  //             from autenticacion.vw_calidad_filtro vcf 
+  //             join (
+  //             SELECT max(distinct  ao.obs_id) obs_id, ao.rep_id--, ao.obs_observacion, ao.obs_justificacion, ao.obs_fecha_creacion
+  //             FROM cuestionarios.apk_observaciones ao 
+  //             where ao.estado_transferencia = 13 
+  //             group by ao.rep_id) a on a.obs_id = vcf.obs_id
+  //             join cuestionarios.apk_estados ae on ae.id_estado = vcf.estado_rep`;
   await con.query(query, (err, result) => {
     if (err) {
       return res.status(500).json({
         title: "Error",
         icon: "error",
-        text: err.message
+        text: err.message 
       });
     }
-    console.log(result.rows, "<=== resultado");
+    // console.log(result.rows, "<=== resultado");
 
     if (result.rowCount > 0) {
       return res.status(200).json({
@@ -67,8 +73,11 @@ const asignarUsuario = async (req, res) => {
     }
   });
 };
-const asigname = async (req, res) => {
+
+const asigname = async (req, res) => { 
   const _user = await userData(req, res);
+  console.log(req.body , '<=== body');
+  
   if (!_user) {
     return res.status(401).json({
       title: "Unauthorized",
