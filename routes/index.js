@@ -14,6 +14,7 @@ module.exports = function setupApi() {
   api.use('/asignar', require('../routes/asignacion.routes'));
   api.use('/transferencia', require('../routes/transferencia.routes'));
   api.use('/home', require('../routes/home.routes'));
+  api.use('/variables', require('../routes/variables.routes'));
   api.use('/', require('../routes/log.routes'));
 
   return api;

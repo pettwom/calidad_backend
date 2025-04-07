@@ -122,20 +122,20 @@ const marcarVisto = async (req, res) => {
 const almacenarNoti = async (req, res, next) => {
   let _user = await userData(req, res);
   var fecha =  await fechas(req.body.fechaFin)
-  // console.log(typeof fecha)
+  console.log(req.body)
   await con.query(
     `INSERT INTO "autenticacion"."notificacion" 
                   ("titulo_noti", "descripcion_larga", "id_estado", "fecre", "usucre", "fecha_fin", "id_user_asig", "tiempo_limite") 
                   VALUES ('${req.body.title}', '${req.body.comment}', 1, current_timestamp, ${_user.id_usuario} , '${fecha}', ${req.body.user}, '${req.body.switch}')`,
     (err, result) => {
-
+ 
       
       if (err) {
         console.error(err);
         return res.status(500).json({ error: "Error al insertar notificación." }); 
       } 
       if(result.rowCount > 0) { 
-      return res.status(200).json({
+      return res.status(200).json({  
         title: "Correcto",  
         icon: "success",
         text: "Notificación insertada correctamente.",      

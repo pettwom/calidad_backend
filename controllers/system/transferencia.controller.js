@@ -76,22 +76,27 @@ const asignarUsuario = async (req, res) => {
 
 const asigname = async (req, res) => { 
   const _user = await userData(req, res);
-  console.log(req.body , '<=== body');
+  // console.log(req.body , '<=== body');
+  // console.log(_user);
   
   if (!_user) {
     return res.status(401).json({
       title: "Unauthorized",
       icon: "error",
-      text: "No estás autorizado para realizar esta acción"
+      text: "No estás autorizado para realizar esta acción" 
     });
   } else {
+
     var usuarioAsig = await con.query(`select usu_asig_id, rep_id from "calidad"."cal_asignacion" where id = ${req.body.ids}`);
-
-    await con.query(`UPDATE "cuestionarios"."apk_observaciones" SET "estado_transferencia" = 0 WHERE "rep_id" = ${usuarioAsig.rows[0].rep_id};`)
-
+    // console.log(`UPDATE "cuestionarios"."apk_observaciones" SET "estado_transferencia" = 0 WHERE "rep_id" = ${usuarioAsig.rows[0].rep_id} and estado_transferencia  = 13 and tipo = 'CUESTIONARIO';`);
+    await con.query(`UPDATE "cuestionarios"."apk_observaciones" SET "estado_transferencia" = 0, estado_id= 5 WHERE "rep_id" = ${usuarioAsig.rows[0].rep_id} and estado_transferencia  = 13 and tipo = 'CUESTIONARIO';`)
+    
+    await con.query(`UPDATE "cuestionarios"."apk_replicas" SET "fk_id_estado" = 5 WHERE "rep_id" = ${usuarioAsig.rows[0].rep_id};`)
     await con.query(
       `UPDATE "calidad"."cal_asignacion" SET  "usu_asig_id" = ${_user.id_usuario} , "usu_ant_id"= ${usuarioAsig.rows[0].usu_asig_id}, "fecha_reasignacion" = CURRENT_TIMESTAMP WHERE "id" = ${req.body.ids};`,
       (err, result) => {
+        console.log(result);
+        
         if (err) {
           return res.status(500).json({
             title: "Error",

@@ -40,6 +40,48 @@ const getEstadisticas= async(req, res)=>{
         })
 
 }
+const getAprobados = async(req, res)=>{
+    var result = await con.query(`select vcf.depto, vcf.mpio, vcf.ag_unico, vcf.ae_unico, vcf.empadronador, vcf.cod_cuest , ae.descripcion
+                    from cuestionarios.apk_replicas ar 
+                    join autenticacion.vw_calidad_filtro vcf on vcf.rep_id = ar.rep_id
+                    join cuestionarios.apk_estados ae on ae.id_estado = ar.fk_id_estado
+                    where ar.fk_id_estado  = 7`)
+    return res.status(200).json({
+        title:'Correcto',
+        icon:'success',
+        text: 'Datos obtenidos correctamente',
+        data: result.rows
+    })
+}
+const getObservados = async(req, res)=>{
+    var result = await con.query(`select vcf.depto, vcf.mpio, vcf.ag_unico, vcf.ae_unico, vcf.empadronador, vcf.cod_cuest , ae.descripcion
+        from cuestionarios.apk_replicas ar 
+        join autenticacion.vw_calidad_filtro vcf on vcf.rep_id = ar.rep_id
+        join cuestionarios.apk_estados ae on ae.id_estado = ar.fk_id_estado
+        where ar.fk_id_estado  = 4`)
+return res.status(200).json({
+title:'Correcto',
+icon:'success',
+text: 'Datos obtenidos correctamente',
+data: result.rows
+})
+}
+const getTransferidos = async(req, res)=>{
+    var result = await con.query(`select vcf.depto, vcf.mpio, vcf.ag_unico, vcf.ae_unico, vcf.empadronador, vcf.cod_cuest , ae.descripcion
+        from cuestionarios.apk_replicas ar 
+        join autenticacion.vw_calidad_filtro vcf on vcf.rep_id = ar.rep_id
+        join cuestionarios.apk_estados ae on ae.id_estado = ar.fk_id_estado
+        where ar.fk_id_estado  = 5`)
+return res.status(200).json({
+title:'Correcto',
+icon:'success',
+text: 'Datos obtenidos correctamente',
+data: result.rows
+})
+}
 module.exports = {
-    getEstadisticas
-  };
+    getEstadisticas,
+    getObservados,
+    getAprobados,
+    getTransferidos
+}
