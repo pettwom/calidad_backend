@@ -460,12 +460,16 @@ const saveValidar = async (req, res) => {
   var insertarRegistro = true;
   var mensaje = "";
   var preg = req.body.preg;
+
+  var cultivo = tipoRep == 2 && [16,18,29].includes(preg) ? `and cultivo ilike '${req.body.cultivo}' `: '';
   var preg_qwery = tipoRep == 2 ? `and ao.pre_num_pregunta = '${preg}'` : '';
   var pre_id = tipoRep == 2 ?` and pre_id = ${req.body.pre_id} ` : ''
   var accion = req.body.accion;
   var obs_id = accion == 'edit'? req.body.obs : '';
   //var obs_id_qwery = accion != 'edit'? ` and obs_id = '${req.body.obs}'` : '';
 console.log(req.body.obs);
+console.log(cultivo, '<=== cultivo');
+
 console.log(typeof req.body.obs == 'number', '<=== obs_id_qwery');
 
   if (tipoRep == '1') {
@@ -485,23 +489,7 @@ console.log(typeof req.body.obs == 'number', '<=== obs_id_qwery');
           WHERE rep_id = ${ids} AND tipo = 'CUESTIONARIO'
           ORDER BY cuestionarios.apk_observaciones.obs_id DESC 
           LIMIT 1 `, '<=== estadoCuestionario');
-          console.log(` 
-            select OBS_ID, pre_id, estado_id, obs_observacion 
-            from cuestionarios.apk_observaciones ao 
-            where obs_id not in (
-            select obs_id
-            from cuestionarios.apk_observaciones a 
-            where a.obs_id  in(
-            select ao.obs_id
-            from cuestionarios.apk_observaciones ao 
-            where ao.estado_id = 7
-            union all 
-            select ao.obs_id_mod 
-            from cuestionarios.apk_observaciones ao 
-            where ao.estado_id = 7)
-            )
-            and tipo='PREGUNTA' and rep_id= ${ids} 
-            ${preg_qwery}   ${pre_id}`, '<=== estadoPreguntas');
+          
   const estadoPreguntas = await con.query(` 
             select OBS_ID, pre_id, estado_id, obs_observacion 
             from cuestionarios.apk_observaciones ao 
@@ -517,10 +505,26 @@ console.log(typeof req.body.obs == 'number', '<=== obs_id_qwery');
             from cuestionarios.apk_observaciones ao 
             where ao.estado_id = 7)
             )
-            and tipo='PREGUNTA' and rep_id= ${ids} 
+            and tipo='PREGUNTA' and rep_id= ${ids} ${cultivo}
             ${preg_qwery}   ${pre_id}
           `);
- 
+          console.log(` 
+            select OBS_ID, pre_id, estado_id, obs_observacion 
+            from cuestionarios.apk_observaciones ao 
+            where obs_id not in (
+            select obs_id
+            from cuestionarios.apk_observaciones a 
+            where a.obs_id  in(
+            select ao.obs_id
+            from cuestionarios.apk_observaciones ao 
+            where ao.estado_id = 7
+            union all 
+            select ao.obs_id_mod 
+            from cuestionarios.apk_observaciones ao 
+            where ao.estado_id = 7)
+            )
+            and tipo='PREGUNTA' and rep_id= ${ids} ${cultivo}
+            ${preg_qwery}   ${pre_id}`, '<=== estadoPreguntas');
 
   var pendiente = estadoPreguntas.rows.filter(x => [5, 4, 8, 10].includes(x.estado_id))
   console.log(pendiente, '<=== pendiente');
@@ -863,7 +867,7 @@ when ao.pre_id = 731 then 19
 when ao.pre_id = 732 then 20 
 end parcela, 
 row_number()over(partition by ao.pre_id, ao.pre_num_pregunta order by ao.obs_observacion )nro, 
-ao.pre_num_pregunta, 
+ao.pre_num_pregunta, ao.cultivo cult,
 (select distinct ap.pre_pregunta from cuestionarios.apk_preguntas ap where ap.pre_numero_pregunta  = ao.pre_num_pregunta limit 1),
 split_part(ao.obs_observacion,'"',2)cultivo,  ao.obs_observacion, ao.obs_justificacion,  ao.res_val, ao.res_cosecha, ao.estado_id
 ,ae.descripcion estado, ao.rep_id, ao.obs_id, ao.obs_id_mod, ao.pre_id
@@ -877,7 +881,7 @@ union all
 select  obs_id
 from cuestionarios.apk_observaciones ao2 
 where estado_id = 7 and rep_id =${rep_id}) )
-group by ao.rep_id,ao.obs_id,ao.pre_id, ao.pre_num_pregunta,ae.descripcion ,ao.obs_justificacion,ao.obs_observacion, ao.res_val, ao.res_cosecha, ao.estado_id, ao.obs_id_mod
+group by ao.cultivo,ao.rep_id,ao.obs_id,ao.pre_id, ao.pre_num_pregunta,ae.descripcion ,ao.obs_justificacion,ao.obs_observacion, ao.res_val, ao.res_cosecha, ao.estado_id, ao.obs_id_mod
 order by 1,2,3,5`;
   // console.log('getAlertas ====> ',queryResultado);
 
