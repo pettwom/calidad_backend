@@ -261,29 +261,28 @@ const getListado = async (req, res) => {
                 join cuestionarios.apk_estados ae on ae.id_estado = ca.estado_id
                 where ca.rep_id = vcf.rep_id and estado_id = (select max(estado_id) estado_id from calidad.cal_asignacion ca2 ))estado_id
                 from autenticacion.vw_calidad_filtro vcf 
-                where ${depto} ${mpio} ${com} ${ag} ${ae} ${emp};`
+                where  ${depto} ${mpio} ${com} ${ag} ${ae} ${emp} and estado_rep != 7;;`
   );
-  // console.log(`select distinct row_number() over(order by vcf.cod_depto )nro, vcf.cod_depto , vcf.depto, vcf.cod_municipio, vcf.mpio, vcf.cod_com, vcf.comunidad, vcf.ag_unico,vcf.ae_unico,
+  //  console.log(`select distinct row_number() over(order by vcf.cod_depto )nro, vcf.cod_depto , vcf.depto, vcf.cod_municipio, vcf.mpio, vcf.cod_com, vcf.comunidad, vcf.ag_unico,vcf.ae_unico, 
   //               vcf.cod_empadronador, vcf.empadronador, vcf.cod_cuest, vcf.rep_id, vcf.estado_rep,
-  //               (select COALESCE(concat(coalesce(vu.aut_us_nombres,''),' ', coalesce(vu.aut_us_paterno,''),' ',coalesce(vu.aut_us_materno, '')),'') nombre
-  //               from calidad.cal_asignacion ca
-  //               join monitoreo.vw_usuarios vu on vu.aut_id_usuario = ca.usu_asig_id
-  //               where ca.rep_id = vcf.rep_id)nombre,
-  //               (select to_char(ca.fecha_asignacion, 'dd-mm-yyyy') fecha_asignacion
-  //               from calidad.cal_asignacion ca
-  //               join monitoreo.vw_usuarios vu on vu.aut_id_usuario = ca.usu_asig_id
-  //               where ca.rep_id = vcf.rep_id)fecha_asig,
-  //               (select ae.descripcion
+  //               (select distinct COALESCE(concat(coalesce(vu.aut_us_nombres,''),' ', coalesce(vu.aut_us_paterno,''),' ',coalesce(vu.aut_us_materno, '')),'') nombre
+  //               from calidad.cal_asignacion ca 
+  //               join monitoreo.vw_usuarios vu on vu.aut_id_usuario = ca.usu_asig_id 
+  //               where ca.rep_id = vcf.rep_id and estado_id = (select max(estado_id) estado_id from calidad.cal_asignacion ca2 ))nombre,
+  //               (select distinct to_char(ca.fecha_asignacion, 'dd-mm-yyyy') fecha_asignacion 
+  //               from calidad.cal_asignacion ca 
+  //               join monitoreo.vw_usuarios vu on vu.aut_id_usuario = ca.usu_asig_id 
+  //               where ca.rep_id = vcf.rep_id and estado_id = (select max(estado_id) estado_id from calidad.cal_asignacion ca2 ))fecha_asig,
+  //               (select distinct ae.descripcion
+  //               from calidad.cal_asignacion ca 
+  //               join cuestionarios.apk_estados ae on ae.id_estado = ca.estado_id 
+  //               where ca.rep_id = vcf.rep_id and estado_id = (select max(estado_id) estado_id from calidad.cal_asignacion ca2 ))descripcion,
+  //                            (select distinct ca.estado_id
   //               from calidad.cal_asignacion ca
   //               join cuestionarios.apk_estados ae on ae.id_estado = ca.estado_id
-  //               where ca.rep_id = vcf.rep_id)descripcion,
-  //                            (select ca.estado_id
-  //               from calidad.cal_asignacion ca
-  //               join cuestionarios.apk_estados ae on ae.id_estado = ca.estado_id
-  //               where ca.rep_id = vcf.rep_id)estado_id
-  //               from autenticacion.vw_calidad_filtro vcf
-  //               where ${depto} ${mpio} ${com} ${ag} ${ae} ${emp};`);
-
+  //               where ca.rep_id = vcf.rep_id and estado_id = (select max(estado_id) estado_id from calidad.cal_asignacion ca2 ))estado_id
+  //               from autenticacion.vw_calidad_filtro vcf 
+  //               where  ${depto} ${mpio} ${com} ${ag} ${ae} ${emp} and estado_rep != 7;`);
   // console.log("<=== result");
 
   if (result.rowCount > 0) {
