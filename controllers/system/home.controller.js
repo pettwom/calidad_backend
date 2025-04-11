@@ -46,20 +46,20 @@ const getAprobados = async(req, res)=>{
     //                 join autenticacion.vw_calidad_filtro vcf on vcf.rep_id = ar.rep_id
     //                 join cuestionarios.apk_estados ae on ae.id_estado = ar.fk_id_estado
     //                 where ar.fk_id_estado  = 7`)
-    var result = await con.query(`select row_number() over(order by ar.fecha_sincronizacion) nro, ar.rep_id, vcf.depto, vcf.mpio, vcf.ag_unico, vcf.ae_unico, vcf.empadronador, 
-                        vcf.cod_cuest, ar.fecha_sincronizacion, vu.aut_us_nombres || ' ' || vu.aut_us_paterno || ' ' || vu.aut_us_materno as tecnico_calidad, 
-                        ca.fecha_asignacion, pen.obs_fecha_creacion as fecha_inicio, val.obs_fecha_creacion as fecha_aprobacion, ae.descripcion
-                        from cuestionarios.apk_replicas ar 
-                        join autenticacion.vw_calidad_filtro vcf on vcf.rep_id = ar.rep_id
-                        join cuestionarios.apk_estados ae on ae.id_estado = ar.fk_id_estado
-                        join  (SELECT * FROM (SELECT *, ROW_NUMBER() OVER (PARTITION BY rep_id ORDER BY id DESC) AS rn
-                                FROM calidad.cal_asignacion) a WHERE a.rn = 1) ca on ca.rep_id = ar.rep_id
-                        left join  (select ao.rep_id, ao.obs_fecha_creacion from cuestionarios.apk_observaciones ao 
-                                    where tipo = 'CUESTIONARIO' and ao.estado_id = 5) pen on pen.rep_id = ar.rep_id
-                        left join  (select ao.rep_id, ao.obs_fecha_creacion from cuestionarios.apk_observaciones ao 
-                                    where tipo = 'CUESTIONARIO' and ao.estado_id = 7) val on val.rep_id = ar.rep_id	
-                        join monitoreo.vw_usuarios vu on vu.aut_id_usuario = ca.usu_asig_id			
-                        where ar.fk_id_estado = 7 and ar.fk_cue_id = 1`)
+    var result = await con.query(`select row_number()over(order by ar.rep_id)nro,ar.rep_id, vcf.depto, vcf.mpio, vcf.ag_unico, vcf.ae_unico, vcf.empadronador, 
+                                vcf.cod_cuest,vu.aut_us_nombres || ' ' || vu.aut_us_paterno || ' ' || vu.aut_us_materno as tecnico_calidad, 
+                                to_char((
+                                select distinct ao.obs_fecha_creacion from cuestionarios.apk_observaciones ao1 where ao1.estado_id = 5 and ao.rep_id = ao1.rep_id
+                                ), 'dd-mm-yyyy HH:mm')fecha_inicio_calidad, 
+                                to_char((
+                                select distinct ao.obs_fecha_creacion from cuestionarios.apk_observaciones ao1 where ao1.estado_id = 7 and ao.rep_id = ao1.rep_id
+                                ), 'dd-mm-yyyy HH:mm')fecha_fin_calidad, ae.descripcion
+                                from cuestionarios.apk_replicas ar 
+                                join autenticacion.vw_calidad_filtro vcf on vcf.rep_id = ar.rep_id
+                                join cuestionarios.apk_observaciones ao on ao.rep_id = ar.rep_id 
+                                join cuestionarios.apk_estados ae on ae.id_estado = ar.fk_id_estado
+                                join monitoreo.vw_usuarios vu on vu.aut_id_usuario = ao.usucre_id 		
+                                where ar.fk_id_estado = 7 and ar.fk_cue_id = 1 and ao.tipo = 'CUESTIONARIO'`)
     return res.status(200).json({
         title:'Correcto',
         icon:'success',
