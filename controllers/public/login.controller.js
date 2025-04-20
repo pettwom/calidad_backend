@@ -244,7 +244,7 @@ async function generarMenu(usuario) {
     m.orden,
     au.aut_id_usuario,
     (select ruta from autenticacion.menu sm where sm.id_rol @> array[au.aut_us_rol] LIMIT 1) ruta_defecto,
-    (select STRING_AGG(descripcion_menu||','||ruta,'*|*') from autenticacion.menu sm where sm.id_menu_padre = m.id_menu and m.estado ='ACTIVO' and visible= 't' order by m.orden_sub ) hijos
+    (select STRING_AGG(descripcion_menu||','||ruta,'*|*') from autenticacion.menu sm where sm.id_menu_padre = m.id_menu and m.estado ='ACTIVO' and visible= 't' and sm.sistema = m.sistema  order by m.orden_sub ) hijos
     from monitoreo.vw_usuarios au 
     join autenticacion.rol r on au.aut_us_rol = r.id_rol
     join autenticacion.menu m ON m.id_rol @> array[ r.id_rol] AND m.id_menu_padre IS NULL
