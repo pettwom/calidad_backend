@@ -19,8 +19,8 @@ const getEstadisticas = async (req, res) => {
                     round(count(*)*100 / (select count(ar2.fk_id_estado) from cuestionarios.apk_replicas ar2 )) porcentaje
                     from cuestionarios.apk_replicas ar 
                     where ar.fk_id_estado = 5;`;
-    var query13 = `select count(*), (select count(ar2.fk_id_estado) from cuestionarios.apk_replicas ar2 ) total,
-                    round(count(*)*100 / (select count(ar2.fk_id_estado) from cuestionarios.apk_replicas ar2 )) porcentaje
+    var query13 = `select count(*), (select count(ar2.fk_id_estado) from cuestionarios.apk_replicas ar2 where ar2.fk_cue_id = 1 ) total,
+                    round(count(*)*100 / (select count(ar2.fk_id_estado) from cuestionarios.apk_replicas ar2 where ar2.fk_cue_id = 1 )) porcentaje
                     from cuestionarios.apk_replicas ar 
                     where ar.fk_id_estado = 13;`;
     var observado = await con.query(query4)
